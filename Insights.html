@@ -1,0 +1,2784 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+  /* Hide the field filter without affecting layout */
+  .category-filter {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insights - RankJournal</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <meta name="description" content="Dive into the methodology and decision-making process behind our journal rankings using Graph Attention Networks.">
+    <meta name="keywords" content="journal rankings, graph neural networks, citation analysis, academic insights">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0F172A;
+            color: #F8FAFC;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0F172A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader::after {
+            content: '';
+            width: 50px;
+            height: 50px;
+            border: 5px solid #FBBF24;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #FBBF24;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: '';
+            width: 30px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>');
+            background-size: contain;
+        }
+        
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-right: 20px; /* Add some space between nav and Contact Us button */
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 30px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #F8FAFC;
+            font-size: 1.1em;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover, nav a:focus {
+            color: #FBBF24;
+            outline: none;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #FBBF24;
+            bottom: -4px;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+        nav {
+            flex-grow: 1; /* Add this line */
+        }
+
+        .get-in-touch {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1em;
+            font-weight: 600;
+            background: #F97316;
+            color: #F8FAFC;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .get-in-touch:hover, .get-in-touch:focus {
+            background: #EA580C;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            color: #F8FAFC;
+            font-size: 1.5em;
+        }
+
+        .hero-section {
+            position: relative;
+            padding: 80px 40px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border-radius: 0 0 16px 16px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-content h1 {
+            font-size: 3.2em;
+            font-weight: 700;
+            color: #F8FAFC;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content h1 span {
+            color: #FBBF24;
+        }
+
+        .hero-content p {
+            font-size: 1.2em;
+            color: #CBD5E1;
+            margin-bottom: 30px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.1));
+            color: #FBBF24;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+        }
+
+        .hero-badge i {
+            margin-right: 8px;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FBBF24, #10B981);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .panel h2 {
+            font-size: 2em;
+            font-weight: 700;
+            color: #FBBF24;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel h2::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background: #FBBF24;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .panel h3 {
+            color: #FBBF24;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .panel p {
+            color: #CBD5E1;
+            font-size: 1.05em;
+            margin: 8px 0;
+        }
+
+        .intro-text {
+            text-align: center;
+            color: #CBD5E1;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+
+        .insight-item {
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            margin-bottom: 15px;
+            border-radius: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: #FBBF24;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .insight-item:hover {
+            border-color: rgba(251, 191, 36, 0.4);
+            background: rgba(30, 41, 59, 0.9);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .insight-item:hover::before {
+            opacity: 1;
+        }
+
+        .visualization-container {
+            margin-top: 30px;
+            background: rgba(15, 23, 42, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 350px;
+        }
+
+        .chart-fallback {
+            text-align: center;
+            padding: 20px;
+            color: #EF4444;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .weight-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .weight-tab {
+            padding: 10px 20px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #CBD5E1;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .weight-tab:hover {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.1));
+            color: #FBBF24;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+        }
+
+        .weight-tab.active {
+            background: linear-gradient(135deg, #FBBF24, #F97316);
+            color: #0F172A;
+            border-color: #FBBF24;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        }
+
+        .weight-content {
+            display: none;
+        }
+
+        .weight-content.active {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .weight-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weight-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.1));
+            border: 2px solid #FBBF24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #FBBF24;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .weight-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .weight-label {
+            font-size: 0.9em;
+            color: #CBD5E1;
+            text-align: center;
+        }
+
+        .methodology-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+            border-radius: 8px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #F8FAFC;
+            font-size: 1.05em;
+            line-height: 1.6;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.1);
+        }
+
+        .neural-network {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .layer {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 90%;
+            top: 5%;
+        }
+
+        .layer.input-layer { left: 5%; }
+        .layer.hidden-layer-1 { left: 40%; }
+        .layer.hidden-layer-2 { left: 65%; }
+        .layer.output-layer { left: 85%; }
+
+        .dimension-label {
+            position: absolute;
+            top: -130px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #F8FAFC;
+            font-size: 1em;
+            font-style: italic;
+        }
+
+        .node {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FBBF24, #F97316);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0F172A;
+            font-size: 0.9em;
+            font-weight: 600;
+            position: relative;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            transition: transform 0.3s ease;
+            margin: 3px 0;
+        }
+
+        .node:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+        }
+
+        .node::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9);
+            color: #F8FAFC;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .node:hover::after {
+            opacity: 1;
+        }
+
+        .ellipsis {
+            color: #FBBF24;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .connection {
+            position: absolute;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            animation: fadeConnection 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        }
+
+        @keyframes fadeConnection {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0.3; }
+        }
+
+        .layer-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #FBBF24;
+            font-size: 1em;
+            font-weight: 600;
+            white-space: nowrap; /* This prevents text wrapping */
+        }
+
+        .connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+
+        .citation-network-container {
+            position: relative;
+            width: 100%;
+            height: 650px; /* Increased height for better spacing */
+            margin-top: 30px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .citation-network-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .citation-network-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.02),
+                rgba(255, 255, 255, 0.02) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        #citation-network {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            color: #F8FAFC;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            backdrop-filter: blur(4px);
+            max-width: 250px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tooltip-title {
+            color: #FBBF24;
+            font-weight: 600;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .tooltip-content {
+            line-height: 1.5;
+        }
+
+        .citation-legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85em;
+            z-index: 5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* Default colors */
+        .legend-self { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .legend-internal { background: linear-gradient(135deg, #38BDF8, #0284C7); }
+        .legend-external { background: linear-gradient(135deg, #F87171, #DC2626); }
+
+        .citation-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 5;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 90%;
+        }
+
+        .control-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 100%;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-button {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #F8FAFC;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .control-button:hover {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FBBF24;
+        }
+
+        .layout-button {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #F8FAFC;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .layout-button:hover {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+
+        .density-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .density-slider {
+            width: 120px;
+            cursor: pointer;
+            background: rgba(251, 191, 36, 0.2);
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .density-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #FBBF24;
+            cursor: pointer;
+        }
+
+        .density-value {
+            color: #FBBF24;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .color-label {
+            color: #CBD5E1;
+            min-width: 80px;
+        }
+
+        .search-result {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            color: #F8FAFC;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.9em;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            display: none;
+        }
+
+        .category-filter {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85em;
+            z-index: 5;
+            max-width: 200px;
+        }
+
+        .category-filter h4 {
+            color: #FBBF24;
+            margin: 0 0 8px 0;
+            font-size: 0.95em;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .filter-checkbox {
+            accent-color: #FBBF24;
+            cursor: pointer;
+        }
+
+        .filter-label {
+            color: #CBD5E1;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        footer {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+            text-align: left;
+        }
+
+        .footer-column h3 {
+            color: #FBBF24;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: #FBBF24;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #CBD5E1;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 1em;
+        }
+
+        .footer-column ul li a:hover {
+            color: #FBBF24;
+        }
+
+        .footer-column p {
+            color: #CBD5E1;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: #F8FAFC;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #FBBF24;
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            color: #CBD5E1;
+            font-size: 1em;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulseEdge {
+            0% { stroke-opacity: 0.4; stroke-dashoffset: 0; }
+            50% { stroke-opacity: 0.8; stroke-dashoffset: 10; }
+            100% { stroke-opacity: 0.4; stroke-dashoffset: 20; }
+        }
+
+        @keyframes glowNode {
+            0% { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.3)); }
+            50% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6)); }
+            100% { filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.3)); }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .hero-content h1 {
+                font-size: 2.8em;
+            }
+            
+            .panel h2 {
+                font-size: 1.8em;
+            }
+
+            .weight-content {
+                flex-wrap: wrap;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+
+            .neural-network {
+                height: 350px;
+            }
+
+            .citation-network-container {
+                height: 550px;
+            }
+            
+            .control-panel {
+                max-width: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+            }
+            
+            .logo {
+                font-size: 2em;
+            }
+            
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: rgba(15, 23, 42, 0.95);
+                padding: 20px;
+                gap: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            nav ul.active {
+                display: flex;
+            }
+            
+            .hamburger {
+                display: block;
+            }
+            
+            .hero-section {
+                padding: 60px 20px;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.2em;
+            }
+            
+            .hero-content p {
+                font-size: 1.1em;
+            }
+            
+            .panel {
+                padding: 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .footer-column {
+                text-align: center;
+            }
+            
+            .footer-column h3::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+
+            .weight-tabs {
+                flex-wrap: wrap;
+            }
+
+            .neural-network {
+                height: 300px;
+            }
+
+            .node {
+                width: 30px;
+                height: 30px;
+                font-size: 0.7em;
+            }
+
+            .layer-label {
+                font-size: 0.9em;
+            }
+
+            .citation-network-container {
+                height: 500px;
+            }
+            
+            .citation-legend {
+                top: 10px;
+                right: 10px;
+                font-size: 0.75em;
+            }
+            
+            .control-panel {
+                max-width: 90%;
+            }
+            
+            .density-slider {
+                width: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 1.8em;
+            }
+            
+            .panel h2 {
+                font-size: 1.5em;
+            }
+
+            .weight-circle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.1em;
+            }
+
+            .chart-wrapper {
+                height: 200px;
+            }
+
+            .neural-network {
+                height: 250px;
+            }
+
+            .node {
+                width: 25px;
+                height: 25px;
+                font-size: 0.6em;
+            }
+
+            .layer-label {
+                font-size: 0.8em;
+            }
+
+            .citation-network-container {
+                height: 400px;
+            }
+            
+            .category-filter {
+                max-width: 150px;
+                font-size: 0.75em;
+            }
+            
+            .control-panel {
+                padding: 8px;
+                gap: 6px;
+            }
+            
+            .control-button, .layout-button, .search-button {
+                padding:.6px 8px;
+                font-size: 0.8em;
+            }
+            
+            .color-picker {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .color-label {
+                min-width: 60px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <div id="particles-js"></div>
+    
+    <header>
+        <a href="journal_ranking.html" class="logo">RANKJOURNAL</a>
+        <nav>
+            <ul id="navLinks">
+                <li><a href="journal_ranking.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="insights.html" style="color: #FBBF24;">Insights</a></li>
+            </ul>
+        </nav>
+        <div class="nav-buttons">
+            <a href="get_in_touch.html" class="get-in-touch">Contact Us</a>
+        </div>
+        <i class="fas fa-bars hamburger" aria-label="Toggle navigation"></i>
+    </header>
+
+    <section class="hero-section" data-aos="fade-up">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-lightbulb"></i> Research Insights</div>
+            <h1>Inside Our <span>Ranking Methodology</span></h1>
+            <p>Explore how our Graph Attention Network (GAT) model evaluates journals with precision and flexibility, as of May 15, 2025.</p>
+        </div>
+    </section>
+
+    <div class="content">
+        <div class="panel" data-aos="fade-up">
+            <h2>Our Weighting Methodologies</h2>
+            <p class="intro-text">RankJournal offers three distinct weighting methodologies to evaluate journals, each designed to balance citation types differently. Toggle between them to see how weights affect rankings.</p>
+            <div class="weight-tabs" data-aos="fade-up" data-aos-delay="100">
+                <div class="weight-tab active" data-tab="equal">Equal Weights</div>
+                <div class="weight-tab" data-tab="balanced">Balanced Weights</div>
+                <div class="weight-tab" data-tab="tuned">External Influence</div>
+            </div>
+            <div id="equal-weights" class="weight-content active" data-aos="fade-up" data-aos-delay="200">
+                <div class="weight-item">
+                    <div class="weight-circle">1.0</div>
+                    <div class="weight-label">Self-Citations<br>(α)</div>
+                </div>
+                <div class="weight-item">
+                    <div class="weight-circle">1.0</div>
+                    <div class="weight-label">Internal Citations<br>(β)</div>
+                </div>
+                <div class="weight-item">
+                    <div class="weight-circle">1.0</div>
+                    <div class="weight-label">External Citations<br>(γ)</div>
+                </div>
+            </div>
+            <div id="balanced-weights" class="weight-content" data-aos="fade-up" data-aos-delay="200">
+                <div class="weight-item">
+                    <div class="weight-circle">1.0</div>
+                    <div class="weight-label">Self-Citations<br>(α)</div>
+                </div>
+                <div class="weight-item">
+                    <div class="weight-circle">2.0</div>
+                    <div class="weight-label">Internal Citations<br>(β)</div>
+                </div>
+                <div class="weight-item">
+                    <div class="weight-circle">3.0</div>
+                    <div class="weight-label">External Citations<br>(γ)</div>
+                </div>
+            </div>
+            <div id="tuned-weights" class="weight-content" data-aos="fade-up" data-aos-delay="200">
+                <div class="weight-item">
+                    <div class="weight-circle">0.5</div>
+                    <div class="weight-label">Self-Citations<br>(α)</div>
+                </div>
+                <div class="weight-item">
+                    <div class="weight-circle">2.0</div>
+                    <div class="weight-label">Internal Citations<br>(β)</div>
+                </div>
+                <div class="weight-item">
+                    <div class="weight-circle">3.0</div>
+                    <div class="weight-label">External Citations<br>(γ)</div>
+                </div>
+            </div>
+            <div class="methodology-note" data-aos="fade-up" data-aos-delay="300">
+                <h3>Why Multiple Methodologies?</h3>
+                <p>Each methodology serves a unique purpose: <strong>Equal Weights</strong> treats all citations equally, <strong>Balanced Weights</strong> prioritizes external citations for broader impact, and <strong>Tuned Weights</strong> fine-tunes the balance to reduce self-citation bias. Explore their impact on our <a href="journal_ranking.html" style="color: #FBBF24;">Rankings page</a>.</p>
+            </div>
+        </div>
+
+        <div class="panel" data-aos="fade-up">
+            <h2>How Our Model Makes Decisions</h2>
+            <p class="intro-text">Our Edge-Conditioned Graph Attention Network (GAT) processes citation networks through multiple layers, assigning attention scores to different citation types for a nuanced evaluation of journal impact.</p>
+            <div class="neural-network" data-aos="fade-up" data-aos-delay="100">
+                <!-- SVG for connections -->
+                <svg class="connection-lines">
+                    <!-- Will be populated by JavaScript -->
+                </svg>
+                
+                <div class="layer input-layer">
+                    <div class="dimension-label">Input Layer ∈ ℝ¹³</div>
+                    <div class="layer-label">Input Layer</div>
+                    <div class="node">1</div>
+                    <div class="node">2</div>
+                    <div class="node">3</div>
+                    <div class="node">4</div>
+                    <div class="node">5</div>
+                    <div class="node">6</div>
+                    <div class="node">7</div>
+                    <div class="node">8</div>
+                    <div class="node">9</div>
+                    <div class="node">10</div>
+                    <div class="node">11</div>
+                    <div class="node">12</div>
+                    <div class="node">13</div>
+                </div>
+                
+                <div class="layer hidden-layer-1">
+                    <div class="dimension-label">Hidden Layer ∈ ℝ³²</div>
+                    <div class="layer-label">Hidden Layer</div>
+                    <div class="node">1</div>
+                    <div class="node">2</div>
+                    <div class="node">3</div>
+                    <div class="node">4</div>
+                    <div class="node">5</div>
+                    <div class="node">6</div>
+                    <div class="node">7</div>
+                    <div class="ellipsis">⋮</div>
+                    <div class="node">32</div>
+                </div>
+                
+                <div class="layer hidden-layer-2">
+                    <div class="dimension-label">Hidden Layer ∈ ℝ³²</div>
+                    <div class="layer-label">Hidden Layer</div>
+                    <div class="node">1</div>
+                    <div class="node">2</div>
+                    <div class="node">3</div>
+                    <div class="node">4</div>
+                    <div class="node">5</div>
+                    <div class="node">6</div>
+                    <div class="node">7</div>
+                    <div class="ellipsis">⋮</div>
+                    <div class="node">32</div>
+                </div>
+                
+                <div class="layer output-layer">
+                    <div class="dimension-label">Output Layer ∈ ℝ¹</div>
+                    <div class="layer-label">Output Layer</div>
+                    <div class="node">1</div>
+                </div>
+            </div>
+            <div class="methodology-note" data-aos="fade-up" data-aos-delay="200">
+                <h3>Key Advantage</h3>
+                <p>The GAT model dynamically weighs citations through its attention mechanism, reducing bias from self-citations and highlighting interdisciplinary influence. Hover over nodes to see each layer's role in the ranking process.</p>
+            </div>
+        </div>
+
+        <div class="panel" data-aos="fade-up">
+            <h2>Understanding the Methodology</h2>
+            <div class="insight-item" data-aos="fade-up" data-aos-delay="100">
+                <h3>Edge-Conditioned Attention Mechanism</h3>
+                <p>Our Edge-Conditioned Graph Attention Network (GAT) transforms journal ranking through an innovative process. By categorizing citations into self, internal, and external types, it utilizes a dynamic attention framework with eight concurrent heads to evaluate their significance. The three adjustable weights (α for self-citations, β for internal citations, γ for external citations) offer a customizable approach, allowing the model to adapt to diverse evaluation priorities by fine-tuning the influence of each citation type. This multi-perspective design, enhanced by the GAT’s parallel attention heads, ensures a strong assessment that reflects varying scholarly contexts and institutional goals, as demonstrated by its ability to highlight journals with diverse citation networks.</p>
+                <!-- <p><strong>Example:</strong> A journal with many external citations will have higher attention scores under Balanced or Tuned Weights, boosting its rank if γ is prioritized.</p> -->
+            </div>
+            <div class="insight-item" data-aos="fade-up" data-aos-delay="200">
+                <h3>Feature Aggregation</h3>
+                <p>Our model goes beyond simple counts, blending citation data, publication counts, journal prestige, and trends from 2014-2019 into a powerful ranking tool. Using a multi-layer GAT with a custom loss function (70% MSE, 30% MAE), it captures the full picture of a journal’s influence. Journals like Nature and Science shine here, as their diverse citation networks are fairly recognized, thanks to our focus on quality and context..</p>
+                <p><strong>Implication:</strong> Journals with diverse citation networks (e.g., Nature, Science) benefit from this approach, as it captures their true influence across fields.</p>
+            </div>
+            <div class="insight-item" data-aos="fade-up" data-aos-delay="300">
+                <h3>Practical Impact</h3>
+                <p>By focusing on external citations, our model highlights interdisciplinary journals, such as Nature Energy, which may be undervalued by traditional metrics. This approach helps researchers identify high-impact journals for publishing and collaboration, especially in emerging fields.</p>
+                <a href="journal_ranking.html" style="color: #10B981;">Explore Rankings</a>
+            </div>
+        </div>
+
+        <div class="panel" data-aos="fade-up" id="visualizations">
+            <h2>Visualizing the Impact</h2>
+            <div class="visualization-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;" data-aos="fade-up" data-aos-delay="100">
+                <div style="flex: 1; min-width: 300px;">
+                    <h3>Attention Weights for Nature</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="attentionChart"></canvas>
+                    </div>
+                    <div id="attentionChartFallback" class="chart-fallback" style="display: none;">Unable to load chart. Please refresh the page.</div>
+                    <p>This chart shows the attention weights assigned to Nature's citations under Tuned Weights. Hover to see how each citation type contributes to its ranking.</p>
+                </div>
+                <div style="flex: 1; min-width: 300px;">
+                    <h3>Top Journals Across Methodologies</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="rankingChart"></canvas>
+                    </div>
+                    <div id="rankingChartFallback" class="chart-fallback" style="display: none;">Unable to load chart. Please refresh the page.</div>
+                    <p>Compare the top 5 journals under Equal, Balanced, and Tuned Weights. Notice how rankings shift based on the weighting methodology.</p>
+                </div>
+            </div>
+            <div class="visualization-container" data-aos="fade-up" data-aos-delay="200">
+                <h3>Interactive Citation Network</h3>
+                    <!-- Citation Network Container Structure -->
+                    <div class="citation-network-container">
+                        <!-- Field Filter -->
+                        <div class="category-filter">
+                            <h4>Filter by Field</h4>
+                            <div id="field-filters">
+                                <!-- Generated dynamically by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Citation Legend -->
+                        <div class="citation-legend">
+                            <div class="legend-item">
+                                <div class="legend-color legend-self"></div>
+                                <span>Self Citations</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-internal"></div>
+                                <span>Internal Citations</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-external"></div>
+                                <span>External Citations</span>
+                            </div>
+                        </div>
+                        
+                        Enhanced Controls Panel
+                        <div class="citation-controls">
+                            <div class="control-panel">
+                                <div class="control-row">
+                                    <button class="control-button" id="resetZoomBtn">Reset View</button>
+                                    <button class="control-button" id="focusTopBtn">Focus Top 10</button>
+                                    <!-- <button class="layout-button" id="clusterBtn">Cluster Fields</button> -->
+                                </div>
+                                
+                                <div class="control-row">
+                                    <!-- <div class="density-control">
+                                        <span class="color-label">Node Spacing:</span>
+                                        <input type="range" min="50" max="300" value="150" class="density-slider" id="spacingSlider">
+                                        <span class="density-value" id="spacingValue">150</span>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <svg id="citation-network"></svg>
+                        <div id="tooltip" class="tooltip">
+                            <div class="tooltip-title"></div>
+                            <div class="tooltip-content"></div>
+                        </div>
+                        <div id="search-result" class="search-result"></div>
+                    </div>
+                <p>Explore a network of journals with self (gold), internal (blue), and external (red) citations. Edge thickness represents citation strength. Use the controls to customize the view, filter by field, adjust node spacing, or search for specific journals. Hover over nodes to see detailed citation statistics.</p>
+            </div>
+        </div>
+
+        <div class="panel" data-aos="fade-up">
+            <h2>Researcher's Perspective</h2>
+            <p class="intro-text">As a researcher, I believe a ranking system should empower the academic community by providing transparent, adaptable, and fair evaluations. Our GAT model achieves this by focusing on the quality and context of citations, not just their quantity. This approach helps researchers discover impactful journals, fosters interdisciplinary collaboration, and reduces biases inherent in traditional metrics.</p>
+            <p class="intro-text">Dive into our <a href="journal_ranking.html" style="color: #FBBF24;">Rankings</a> to see these principles in action, or share your thoughts on our <a href="get_in_touch.html" style="color: #FBBF24;">Get In Touch page</a>!</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>About RankJournal</h3>
+                <p>RankJournal provides comprehensive academic journal rankings based on multiple metrics to help researchers identify the most influential publications in their field.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="journal_ranking.html">Home</a></li>
+                    <li><a href="#">Rankings</a></li>
+                    <li><a href="#">Resources</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="insights.html">Insights</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Ranking Methodology</a></li>
+                    <li><a href="#">Data Sources</a></li>
+                    <li><a href="#">API Documentation</a></li>
+                    <li><a href="#">Citation Guidelines</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="social-links">
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        </div>
+        <div class="copyright">
+            <p>© 2025 RankJournal. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            const loader = document.querySelector('.loader');
+            loader.classList.add('hidden');
+            setTimeout(() => loader.remove(), 500);
+        });
+
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+
+        // Particles JS
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: '#FBBF24' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: { enable: true, distance: 150, color: '#FBBF24', opacity: 0.2, width: 1 },
+                move: { enable: true, speed: 2, direction: 'none', random: true, out_mode: 'out' }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' } },
+                modes: { repulse: { distance: 100, duration: 0.4 } }
+            },
+            retina_detect: true
+        });
+        
+        // Add JS to draw the neural network connections
+        document.addEventListener('DOMContentLoaded', function() {
+            // Draw the neural network connections
+            const drawNeuralNetworkConnections = () => {
+                const svg = document.querySelector('.connection-lines');
+                if (!svg) return;
+                
+                // Clear existing lines
+                svg.innerHTML = '';
+                
+                // Get all nodes in each layer
+                const inputNodes = document.querySelectorAll('.input-layer .node');
+                const hidden1Nodes = document.querySelectorAll('.hidden-layer-1 .node');
+                const hidden2Nodes = document.querySelectorAll('.hidden-layer-2 .node');
+                const outputNodes = document.querySelectorAll('.output-layer .node');
+                
+                // Set line style
+                const lineStyle = 'stroke: rgba(200, 200, 200, 0.15); stroke-width: 0.5px;';
+                
+                // Connect input to first hidden layer
+                inputNodes.forEach(inputNode => {
+                    const inputRect = inputNode.getBoundingClientRect();
+                    const inputX = inputRect.left + inputRect.width / 2;
+                    const inputY = inputRect.top + inputRect.height / 2;
+                    
+                    hidden1Nodes.forEach(hiddenNode => {
+                        const hiddenRect = hiddenNode.getBoundingClientRect();
+                        const hiddenX = hiddenRect.left + hiddenRect.width / 2;
+                        const hiddenY = hiddenRect.top + hiddenRect.height / 2;
+                        
+                        // Convert to relative positions within the SVG
+                        const svgRect = svg.getBoundingClientRect();
+                        const x1 = inputX - svgRect.left;
+                        const y1 = inputY - svgRect.top;
+                        const x2 = hiddenX - svgRect.left;
+                        const y2 = hiddenY - svgRect.top;
+                        
+                        // Add line
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', x1);
+                        line.setAttribute('y1', y1);
+                        line.setAttribute('x2', x2);
+                        line.setAttribute('y2', y2);
+                        line.setAttribute('style', lineStyle);
+                        svg.appendChild(line);
+                    });
+                });
+                
+                // Connect first hidden layer to second hidden layer
+                hidden1Nodes.forEach(hiddenNode1 => {
+                    const hidden1Rect = hiddenNode1.getBoundingClientRect();
+                    const hidden1X = hidden1Rect.left + hidden1Rect.width / 2;
+                    const hidden1Y = hidden1Rect.top + hidden1Rect.height / 2;
+                    
+                    hidden2Nodes.forEach(hiddenNode2 => {
+                        const hidden2Rect = hiddenNode2.getBoundingClientRect();
+                        const hidden2X = hidden2Rect.left + hidden2Rect.width / 2;
+                        const hidden2Y = hidden2Rect.top + hidden2Rect.height / 2;
+                        
+                        // Convert to relative positions within the SVG
+                        const svgRect = svg.getBoundingClientRect();
+                        const x1 = hidden1X - svgRect.left;
+                        const y1 = hidden1Y - svgRect.top;
+                        const x2 = hidden2X - svgRect.left;
+                        const y2 = hidden2Y - svgRect.top;
+                        
+                        // Add line
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', x1);
+                        line.setAttribute('y1', y1);
+                        line.setAttribute('x2', x2);
+                        line.setAttribute('y2', y2);
+                        line.setAttribute('style', lineStyle);
+                        svg.appendChild(line);
+                    });
+                });
+                
+                // Connect second hidden layer to output layer
+                hidden2Nodes.forEach(hiddenNode2 => {
+                    const hidden2Rect = hiddenNode2.getBoundingClientRect();
+                    const hidden2X = hidden2Rect.left + hidden2Rect.width / 2;
+                    const hidden2Y = hidden2Rect.top + hidden2Rect.height / 2;
+                    
+                    outputNodes.forEach(outputNode => {
+                        const outputRect = outputNode.getBoundingClientRect();
+                        const outputX = outputRect.left + outputRect.width / 2;
+                        const outputY = outputRect.top + outputRect.height / 2;
+                        
+                        // Convert to relative positions within the SVG
+                        const svgRect = svg.getBoundingClientRect();
+                        const x1 = hidden2X - svgRect.left;
+                        const y1 = hidden2Y - svgRect.top;
+                        const x2 = outputX - svgRect.left;
+                        const y2 = outputY - svgRect.top;
+                        
+                        // Add line
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', x1);
+                        line.setAttribute('y1', y1);
+                        line.setAttribute('x2', x2);
+                        line.setAttribute('y2', y2);
+                        line.setAttribute('style', lineStyle);
+                        svg.appendChild(line);
+                    });
+                });
+            };
+            
+            // Draw connections after the page is fully loaded and AOS animations are complete
+            setTimeout(drawNeuralNetworkConnections, 1000);
+            
+            // Redraw connections on window resize
+            window.addEventListener('resize', drawNeuralNetworkConnections);
+        });
+
+        // Hamburger menu toggle
+        document.querySelector('.hamburger').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // Weight Tabs Functionality
+        const tabs = document.querySelectorAll('.weight-tab');
+        const contents = document.querySelectorAll('.weight-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-weights`).classList.add('active');
+            });
+        });
+
+        // Citation Network with Enhanced D3.js Visualization
+        document.addEventListener('DOMContentLoaded', () => {
+            const width = document.getElementById('citation-network').clientWidth;
+            const height = document.getElementById('citation-network').clientHeight;
+            
+            // Default color settings
+            let colorSettings = {
+                self: {
+                    start: "#FFD700",
+                    end: "#FFA500"
+                },
+                internal: {
+                    start: "#38BDF8",
+                    end: "#0284C7"
+                },
+                external: {
+                    start: "#F87171",
+                    end: "#DC2626"
+                }
+            };
+            
+            // Default spacing value - higher means more spread out
+            let linkDistance = 150;
+
+            // Journal data with impact factors and h-index for more realistic visualization
+            const journals = [
+                { id: "Nature", field: "Multidisciplinary", impact: 49.96, h_index: 1159, rank: 1 },
+                { id: "Science", field: "Multidisciplinary", impact: 47.73, h_index: 1120, rank: 2 },
+                { id: "NEJM", field: "Medicine", impact: 91.24, h_index: 1060, rank: 3 },
+                { id: "Cell", field: "Biology", impact: 41.58, h_index: 755, rank: 4 },
+                { id: "Lancet", field: "Medicine", impact: 79.32, h_index: 826, rank: 5 },
+                { id: "Nature Energy", field: "Energy", impact: 60.83, h_index: 145, rank: 6 },
+                { id: "PNAS", field: "Multidisciplinary", impact: 11.47, h_index: 807, rank: 7 },
+                { id: "Nature Materials", field: "Materials Science", impact: 38.66, h_index: 531, rank: 8 },
+                { id: "Nature Biotechnology", field: "Biotechnology", impact: 36.28, h_index: 461, rank: 9 },
+                { id: "Nature Medicine", field: "Medicine", impact: 53.44, h_index: 528, rank: 10 },
+                { id: "Chem. Reviews", field: "Chemistry", impact: 60.62, h_index: 535, rank: 11 },
+                { id: "Nature Genetics", field: "Genetics", impact: 38.33, h_index: 528, rank: 12 },
+                { id: "JAMA", field: "Medicine", impact: 56.27, h_index: 629, rank: 13 },
+                { id: "Advanced Materials", field: "Materials Science", impact: 27.4, h_index: 550, rank: 14 },
+                { id: "Nature Nanotechnology", field: "Nanotechnology", impact: 39.21, h_index: 439, rank: 15 },
+                { id: "J. of AI", field: "Computer Science", impact: 19.25, h_index: 210, rank: 16 },
+                { id: "Nature Photonics", field: "Optics", impact: 38.77, h_index: 360, rank: 17 },
+                { id: "Nature Physics", field: "Physics", impact: 19.26, h_index: 323, rank: 18 },
+                { id: "IEEE Trans. AI", field: "Computer Science", impact: 17.86, h_index: 195, rank: 19 },
+                { id: "Energy & Env. Science", field: "Energy", impact: 38.53, h_index: 354, rank: 20 },
+                { id: "Bioinformatics", field: "Biology", impact: 6.93, h_index: 321, rank: 21 },
+                { id: "Nature Comm.", field: "Multidisciplinary", impact: 14.92, h_index: 374, rank: 22 },
+                { id: "J. of Ecology", field: "Ecology", impact: 6.43, h_index: 155, rank: 23 },
+                { id: "J. of Chemistry", field: "Chemistry", impact: 12.11, h_index: 185, rank: 24 },
+                { id: "Physical Rev. Letters", field: "Physics", impact: 9.16, h_index: 456, rank: 25 },
+                { id: "Energy Policy", field: "Energy", impact: 6.14, h_index: 212, rank: 26 },
+                { id: "NeuroImage", field: "Neuroscience", impact: 6.56, h_index: 376, rank: 27 },
+                { id: "J. of Neuroscience", field: "Neuroscience", impact: 6.17, h_index: 419, rank: 28 },
+                { id: "Astronomy J.", field: "Astronomy", impact: 5.78, h_index: 198, rank: 29 },
+                { id: "Astrophys. J.", field: "Astronomy", impact: 5.56, h_index: 365, rank: 30 },
+                { id: "J. of Geology", field: "Geology", impact: 3.84, h_index: 112, rank: 31 },
+                { id: "Geology Today", field: "Geology", impact: 1.93, h_index: 45, rank: 32 },
+                { id: "J. of Math", field: "Mathematics", impact: 2.1, h_index: 86, rank: 33 },
+                { id: "Math. Annals", field: "Mathematics", impact: 1.32, h_index: 72, rank: 34 },
+                { id: "Econ. Review", field: "Economics", impact: 4.31, h_index: 142, rank: 35 },
+                { id: "J. of Economics", field: "Economics", impact: 3.12, h_index: 96, rank: 36 },
+                { id: "Psych. Review", field: "Psychology", impact: 7.97, h_index: 264, rank: 37 },
+                { id: "J. of Psychology", field: "Psychology", impact: 4.23, h_index: 120, rank: 38 },
+                { id: "Sociology J.", field: "Sociology", impact: 4.32, h_index: 110, rank: 39 },
+                { id: "Social Studies", field: "Sociology", impact: 3.54, h_index: 87, rank: 40 }
+            ];
+            
+            // Setup field filter checkboxes
+            const filterContainer = document.getElementById('field-filters');
+            const uniqueFields = [...new Set(journals.map(j => j.field))];
+            
+            // Create checkboxes for each field
+            uniqueFields.forEach(field => {
+                const filterItem = document.createElement('div');
+                filterItem.className = 'filter-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'filter-checkbox';
+                checkbox.id = `filter-${field}`;
+                checkbox.value = field;
+                checkbox.checked = true; // All fields visible by default
+                
+                const label = document.createElement('label');
+                label.className = 'filter-label';
+                label.htmlFor = `filter-${field}`;
+                label.textContent = field;
+                
+                filterItem.appendChild(checkbox);
+                filterItem.appendChild(label);
+                filterContainer.appendChild(filterItem);
+            });
+
+            // Create a color scale for the fields
+            const fieldColors = {
+                "Multidisciplinary": ["#FFD700", "#FFC107"],
+                "Medicine": ["#FF6347", "#FF4500"],
+                "Biology": ["#34C759", "#2FAE4F"],
+                "Energy": ["#F97316", "#EA580C"],
+                "Materials Science": ["#20B2AA", "#48D1CC"],
+                "Biotechnology": ["#8A2BE2", "#6A5ACD"],
+                "Genetics": ["#32CD32", "#228B22"],
+                "Chemistry": ["#DC143C", "#B22222"],
+                "Computer Science": ["#8A2BE2", "#6A5ACD"],
+                "Optics": ["#BA55D3", "#9932CC"],
+                "Physics": ["#4682B4", "#5A9BD4"],
+                "Ecology": ["#228B22", "#006400"],
+                "Neuroscience": ["#FF8C00", "#FFA500"],
+                "Astronomy": ["#4B0082", "#6A5ACD"],
+                "Geology": ["#8B4513", "#A0522D"],
+                "Mathematics": ["#1E90FF", "#00BFFF"],
+                "Economics": ["#2E8B57", "#3CB371"],
+                "Psychology": ["#9932CC", "#8A2BE2"],
+                "Sociology": ["#DAA520", "#FFD700"],
+                "Nanotechnology": ["#FF4500", "#FF6347"]
+            };
+
+            // Enhanced link generation algorithm to ensure all nodes are connected
+            const generateLinks = () => {
+                const links = [];
+                
+                // First, ensure all journals have at least one connection to avoid floating nodes
+                for (let i = 1; i < journals.length; i++) {
+                    // Connect to a journal with lower rank (higher up in list)
+                    const targetIndex = Math.floor(Math.random() * i);
+                    
+                    links.push({
+                        source: journals[i].id,
+                        target: journals[targetIndex].id,
+                        type: journals[i].field === journals[targetIndex].field ? "internal" : "external",
+                        weight: 0.5 + Math.random() * 0.3,
+                        citation_count: Math.floor(Math.random() * 25) + 5
+                    });
+                }
+                
+                // Generate self-citations (proportional to journal rank)
+                journals.forEach(journal => {
+                    // Higher ranked journals have more self-citations
+                    const selfCitationProbability = Math.min(0.8, 0.3 + (1 / journal.rank) * 2);
+                    
+                    if (Math.random() < selfCitationProbability) {
+                        links.push({
+                            source: journal.id,
+                            target: journal.id,
+                            type: "self",
+                            weight: Math.random() * 0.5 + 0.2 * (1 - journal.rank/50), // Higher ranked journals get more weight
+                            citation_count: Math.floor(Math.random() * 50) + 10
+                        });
+                    }
+                });
+                
+                // Generate internal citations (within same field)
+                journals.forEach(source => {
+                    const fieldJournals = journals.filter(j => j.field === source.field && j.id !== source.id);
+                    
+                    // Each journal cites 1-3 journals in the same field
+                    const numInternalCitations = Math.floor(Math.random() * 3) + 1;
+                    
+                    for (let i = 0; i < numInternalCitations && fieldJournals.length > 0; i++) {
+                        const targetIndex = Math.floor(Math.random() * fieldJournals.length);
+                        const target = fieldJournals.splice(targetIndex, 1)[0];
+                        
+                        const internalWeight = Math.random() * 0.3 + 0.3 + (1 / Math.max(1, Math.abs(source.rank - target.rank))) * 0.4;
+                        
+                        links.push({
+                            source: source.id,
+                            target: target.id,
+                            type: "internal",
+                            weight: internalWeight,
+                            citation_count: Math.floor(Math.random() * 40) + 5
+                        });
+                    }
+                });
+                
+                // Generate external citations (different fields, more for higher-impact journals)
+                journals.forEach(source => {
+                    // Higher impact journals cite more externally
+                    const numExternalCitations = Math.floor(Math.random() * 3 * (source.impact / 20)) + 1;
+                    const otherFieldJournals = journals.filter(j => j.field !== source.field);
+                    
+                    // Preference for citing high-ranked journals
+                    const weightedSelection = (journals) => {
+                        const totalWeight = journals.reduce((sum, j) => sum + (100 / j.rank), 0);
+                        let random = Math.random() * totalWeight;
+                        
+                        for (let i = 0; i < journals.length; i++) {
+                            random -= (100 / journals[i].rank);
+                            if (random <= 0) return journals[i];
+                        }
+                        return journals[0];
+                    };
+                    
+                    for (let i = 0; i < numExternalCitations && otherFieldJournals.length > 0; i++) {
+                        const target = weightedSelection(otherFieldJournals);
+                        const targetIndex = otherFieldJournals.findIndex(j => j.id === target.id);
+                        otherFieldJournals.splice(targetIndex, 1);
+                        
+                        // External citation weight influenced by both journals' impact factors
+                        const externalWeight = Math.random() * 0.3 + 0.4 + (source.impact * target.impact) / 2000;
+                        
+                        links.push({
+                            source: journals[i].id,
+                            target: target.id,
+                            type: "external",
+                            weight: externalWeight,
+                            citation_count: Math.floor(Math.random() * 30) + 2
+                        });
+                    }
+                });
+                
+                return links;
+            };
+
+            // Generate links with the updated algorithm
+            let links = generateLinks();
+            
+            // Function to update the gradients
+            const updateGradients = () => {
+                // Update self-citation gradient
+                d3.select("#self-gradient")
+                    .selectAll("stop")
+                    .data([
+                        { offset: "0%", color: colorSettings.self.start },
+                        { offset: "100%", color: colorSettings.self.end }
+                    ])
+                    .attr("offset", d => d.offset)
+                    .attr("stop-color", d => d.color);
+                
+                // Update internal citation gradient
+                d3.select("#internal-gradient")
+                    .selectAll("stop")
+                    .data([
+                        { offset: "0%", color: colorSettings.internal.start },
+                        { offset: "100%", color: colorSettings.internal.end }
+                    ])
+                    .attr("offset", d => d.offset)
+                    .attr("stop-color", d => d.color);
+                
+                // Update external citation gradient
+                d3.select("#external-gradient")
+                    .selectAll("stop")
+                    .data([
+                        { offset: "0%", color: colorSettings.external.start },
+                        { offset: "100%", color: colorSettings.external.end }
+                    ])
+                    .attr("offset", d => d.offset)
+                    .attr("stop-color", d => d.color);
+                
+                // Update legend colors
+                d3.select(".legend-self")
+                    .style("background", `linear-gradient(135deg, ${colorSettings.self.start}, ${colorSettings.self.end})`);
+                
+                d3.select(".legend-internal")
+                    .style("background", `linear-gradient(135deg, ${colorSettings.internal.start}, ${colorSettings.internal.end})`);
+                
+                d3.select(".legend-external")
+                    .style("background", `linear-gradient(135deg, ${colorSettings.external.start}, ${colorSettings.external.end})`);
+                
+                // Update all links with new gradient colors
+                container.selectAll("path.citation-edge")
+                    .attr("stroke", d => {
+                        if (d.type === "self") return "url(#self-gradient)";
+                        if (d.type === "internal") return "url(#internal-gradient)";
+                        return "url(#external-gradient)";
+                    });
+            };
+
+            // Create SVG canvas with improved styling
+            const svg = d3.select("#citation-network")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("viewBox", [0, 0, width, height])
+                .attr("style", "max-width: 100%; height: auto;");
+
+            // Define SVG defs for gradient effects and filters
+            const defs = svg.append("defs");
+
+            // Create radial gradients for nodes by field
+            journals.forEach((d, i) => {
+                const fieldGradient = defs.append("radialGradient")
+                    .attr("id", `node-gradient-${i}`)
+                    .attr("cx", "50%")
+                    .attr("cy", "50%")
+                    .attr("r", "50%")
+                    .attr("fx", "25%")
+                    .attr("fy", "25%");
+                
+                const colors = fieldColors[d.field] || ["#FFFFFF", "#CCCCCC"];
+                
+                fieldGradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", colors[0]);
+                fieldGradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", colors[1]);
+            });
+
+            // Add edge gradients for different citation types with improved colors
+            // Self-citation gradient
+            const selfGradient = defs.append("linearGradient")
+                .attr("id", "self-gradient")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "100%");
+            
+            selfGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", colorSettings.self.start);
+            selfGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", colorSettings.self.end);
+
+            // Internal citation gradient
+            const internalGradient = defs.append("linearGradient")
+                .attr("id", "internal-gradient")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "100%");
+            
+            internalGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", colorSettings.internal.start);
+            internalGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", colorSettings.internal.end);
+
+            // External citation gradient
+            const externalGradient = defs.append("linearGradient")
+                .attr("id", "external-gradient")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "100%");
+            
+            externalGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", colorSettings.external.start);
+            externalGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", colorSettings.external.end);
+
+            // Add glow effect for nodes and edges
+            const glow = defs.append("filter")
+                .attr("id", "glow")
+                .attr("x", "-50%")
+                .attr("y", "-50%")
+                .attr("width", "200%")
+                .attr("height", "200%");
+            
+            glow.append("feGaussianBlur")
+                .attr("stdDeviation", "2.5")
+                .attr("result", "coloredBlur");
+            
+            const feMerge = glow.append("feMerge");
+            feMerge.append("feMergeNode")
+                .attr("in", "coloredBlur");
+            feMerge.append("feMergeNode")
+                .attr("in", "SourceGraphic");
+
+            // Edge highlight filter
+            const edgeHighlight = defs.append("filter")
+                .attr("id", "edge-highlight")
+                .attr("x", "-50%")
+                .attr("y", "-50%")
+                .attr("width", "200%")
+                .attr("height", "200%");
+            
+            edgeHighlight.append("feGaussianBlur")
+                .attr("stdDeviation", "2")
+                .attr("result", "blur");
+            
+            edgeHighlight.append("feComposite")
+                .attr("in", "SourceGraphic")
+                .attr("in2", "blur")
+                .attr("operator", "over");
+
+            // Create zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.5, 5])
+                .on("zoom", (event) => {
+                    container.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // Create a container for all visualization elements
+            const container = svg.append("g")
+                .attr("class", "container");
+
+            // Create curved and animated links
+            let link = container.append("g")
+                .attr("class", "links")
+                .selectAll("path")
+                .data(links)
+                .enter()
+                .append("path")
+                .attr("stroke", d => {
+                    if (d.type === "self") return "url(#self-gradient)";
+                    if (d.type === "internal") return "url(#internal-gradient)";
+                    return "url(#external-gradient)";
+                })
+                .attr("stroke-width", d => Math.max(1, d.weight * 6))
+                .attr("stroke-opacity", 0.7)
+                .attr("fill", "none")
+                .attr("stroke-dasharray", d => d.type === "self" ? "0" : "5 2")
+                .attr("stroke-linecap", "round")
+                .attr("class", d => `citation-edge ${d.type}-citation`)
+                .style("mix-blend-mode", "screen")
+                .style("animation", d => `pulseEdge ${3 + d.weight * 2}s infinite`);
+
+            // Define force simulation parameters with improved spacing
+            const createSimulation = () => {
+                return d3.forceSimulation(journals)
+                    .force("link", d3.forceLink(links)
+                        .id(d => d.id)
+                        .distance(d => linkDistance - (d.weight * 30)) // Adjustable link distance
+                        .strength(d => d.weight * 0.7))
+                    .force("charge", d3.forceManyBody()
+                        .strength(d => -200 - d.impact * 2)) // Stronger repulsion
+                    .force("center", d3.forceCenter(width / 2, height / 2))
+                    .force("x", d3.forceX(width / 2).strength(0.03))
+                    .force("y", d3.forceY(height / 2).strength(0.03))
+                    .force("collision", d3.forceCollide()
+                        .radius(d => Math.min(60, 20 + (50 - d.rank) * 0.8))); // Increased collision radius
+            };
+
+            // Create simulation with initial parameters
+            let simulation = createSimulation();
+
+            // Create node groups
+            let node = container.append("g")
+                .attr("class", "nodes")
+                .selectAll("g")
+                .data(journals)
+                .enter()
+                .append("g")
+                .attr("class", d => `journal-node rank-${d.rank} field-${d.field.replace(/\s+/g, '-').toLowerCase()}`)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            // Add circular backgrounds with gradient
+            node.append("circle")
+                .attr("r", d => Math.max(8, Math.min(20, 8 + (50 - d.rank) * 0.25))) // Larger nodes
+                .attr("fill", (d, i) => `url(#node-gradient-${i})`)
+                .attr("stroke", d => {
+                    const colors = fieldColors[d.field] || ["#FFFFFF", "#CCCCCC"];
+                    return colors[0];
+                })
+                .attr("stroke-width", d => d.rank <= 10 ? 2 : 1.5)
+                .attr("class", "node-circle")
+                .style("filter", d => d.rank <= 10 ? "url(#glow)" : "none")
+                .style("animation", d => d.rank <= 10 ? "glowNode 3s infinite" : "none");
+
+            // Add rank indicator for top journals
+            node.filter(d => d.rank <= 10)
+                .append("circle")
+                .attr("r", 8)
+                .attr("cx", -10)
+                .attr("cy", -10)
+                .attr("fill", "#FBBF24")
+                .attr("stroke", "#0F172A")
+                .attr("stroke-width", 1.5)
+                .attr("class", "rank-indicator");
+
+            node.filter(d => d.rank <= 10)
+                .append("text")
+                .attr("x", -10)
+                .attr("y", -6)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "8px")
+                .attr("font-weight", "bold")
+                .attr("fill", "#0F172A")
+                .text(d => d.rank);
+
+            // Add journal labels with better visibility
+            node.append("text")
+                .attr("dx", d => d.rank <= 10 ? 12 : 10)
+                .attr("dy", ".35em")
+                .text(d => d.id)
+                .attr("fill", "#F8FAFC")
+                .attr("font-size", d => d.rank <= 10 ? "12px" : "10px")
+                .attr("font-weight", d => d.rank <= 10 ? "600" : "normal")
+                .attr("pointer-events", "none")
+                .attr("class", "journal-label")
+                .style("text-shadow", "0 1px 3px rgba(0,0,0,0.9), 0 1px 5px rgba(0,0,0,0.7)"); // Enhanced shadow for readability
+
+            // Update function for the simulation
+            simulation.on("tick", () => {
+                // Update links with proper curved paths
+                link.attr("d", d => {
+                    if (d.source.id === d.target.id) {
+                        // Self-link creates a loop
+                        const x = d.source.x;
+                        const y = d.source.y;
+                        const radius = 25; // Larger loop
+                        return `M${x},${y - radius} A${radius},${radius} 0 1,1 ${x + 0.1},${y - radius}`;
+                    } else {
+                        // Regular curved links
+                        const dx = d.target.x - d.source.x;
+                        const dy = d.target.y - d.source.y;
+                        const dr = Math.sqrt(dx * dx + dy * dy) * 2;
+                        
+                        return `M${d.source.x},${d.source.y} A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+                    }
+                });
+
+                // Update node positions with boundary constraints
+                node.attr("transform", d => {
+                    // Keep nodes within boundaries
+                    d.x = Math.max(20, Math.min(width - 20, d.x));
+                    d.y = Math.max(20, Math.min(height - 20, d.y));
+                    return `translate(${d.x},${d.y})`;
+                });
+            });
+
+            // Setup interactive events
+            node.on("mouseover", function(event, d) {
+                // Highlight the node
+                d3.select(this).select(".node-circle")
+                    .transition()
+                    .duration(300)
+                    .attr("r", d => Math.max(10, Math.min(22, 10 + (50 - d.rank) * 0.25)))
+                    .style("filter", "url(#glow)");
+                
+                // Find connected links
+                const connected = links.filter(l => l.source.id === d.id || l.target.id === d.id);
+                
+                // Highlight connected links
+                container.selectAll("path")
+                    .transition()
+                    .duration(300)
+                    .attr("stroke-opacity", l => connected.includes(l) ? 1 : 0.1)
+                    .attr("stroke-width", l => connected.includes(l) ? Math.max(1.5, l.weight * 8) : Math.max(0.5, l.weight * 2));
+                
+                // Highlight connected nodes
+                const connectedNodes = new Set();
+                connected.forEach(l => {
+                    connectedNodes.add(typeof l.source === 'object' ? l.source.id : l.source);
+                    connectedNodes.add(typeof l.target === 'object' ? l.target.id : l.target);
+                });
+                
+                container.selectAll(".journal-node")
+                    .transition()
+                    .duration(300)
+                    .style("opacity", n => connectedNodes.has(n.id) ? 1 : 0.3);
+                
+                // Show tooltip with enhanced information
+                const selfCites = links.filter(l => 
+                    (typeof l.source === 'object' ? l.source.id : l.source) === d.id && 
+                    (typeof l.target === 'object' ? l.target.id : l.target) === d.id
+                );
+                
+                const internalCites = links.filter(l => 
+                    (typeof l.source === 'object' ? l.source.id : l.source) === d.id && 
+                    (typeof l.target === 'object' ? l.target.id : l.target) !== d.id && 
+                    l.type === "internal"
+                );
+                
+                const externalCites = links.filter(l => 
+                    (typeof l.source === 'object' ? l.source.id : l.source) === d.id && 
+                    (typeof l.target === 'object' ? l.target.id : l.target) !== d.id && 
+                    l.type === "external"
+                );
+                
+                const citedBy = links.filter(l => 
+                    (typeof l.target === 'object' ? l.target.id : l.target) === d.id && 
+                    (typeof l.source === 'object' ? l.source.id : l.source) !== d.id
+                );
+                
+                const totalOutgoing = selfCites.reduce((sum, l) => sum + l.citation_count, 0) + 
+                                     internalCites.reduce((sum, l) => sum + l.citation_count, 0) + 
+                                     externalCites.reduce((sum, l) => sum + l.citation_count, 0);
+                                     
+                const totalIncoming = citedBy.reduce((sum, l) => sum + l.citation_count, 0);
+                
+                const tooltip = d3.select("#tooltip");
+                tooltip.style("display", "block")
+                    .style("opacity", 1)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px");
+                
+                tooltip.select(".tooltip-title")
+                    .html(`${d.id}`);
+                
+                tooltip.select(".tooltip-content")
+                    .html(`<strong>Field:</strong> ${d.field}<br>
+                           <strong>Impact Factor:</strong> ${d.impact.toFixed(2)}<br>
+                           <strong>H-index:</strong> ${d.h_index}<br>
+                           <strong>Rank:</strong> #${d.rank}<br>
+                           <hr style="border-color: rgba(251, 191, 36, 0.3); margin: 5px 0;">
+                           <strong>Self Citations:</strong> ${selfCites.length ? selfCites[0].citation_count : 0}<br>
+                           <strong>Outgoing Citations:</strong> ${totalOutgoing}<br>
+                           <strong>Incoming Citations:</strong> ${totalIncoming}`);
+            })
+            .on("mouseout", function() {
+                // Reset node appearance
+                d3.select(this).select(".node-circle")
+                    .transition()
+                    .duration(300)
+                    .attr("r", d => Math.max(8, Math.min(20, 8 + (50 - d.rank) * 0.25)))
+                    .style("filter", d => d.rank <= 10 ? "url(#glow)" : "none");
+                
+                // Reset all links
+                container.selectAll("path")
+                    .transition()
+                    .duration(300)
+                    .attr("stroke-opacity", 0.7)
+                    .attr("stroke-width", d => Math.max(1, d.weight * 6));
+                
+                // Reset all nodes
+                container.selectAll(".journal-node")
+                    .transition()
+                    .duration(300)
+                    .style("opacity", 1);
+                
+                // Hide tooltip
+                d3.select("#tooltip")
+                    .transition()
+                    .duration(300)
+                    .style("opacity", 0)
+                    .on("end", function() {
+                        d3.select(this).style("display", "none");
+                    });
+            });
+
+            // Link hover effects
+            link.on("mouseover", function(event, d) {
+                // Highlight the link
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("stroke-opacity", 1)
+                    .attr("stroke-width", Math.max(2, d.weight * 10))
+                    .style("filter", "url(#edge-highlight)");
+                
+                // Show tooltip
+                const tooltip = d3.select("#tooltip");
+                tooltip.style("display", "block")
+                    .style("opacity", 1)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px");
+                
+                tooltip.select(".tooltip-title")
+                    .html(`Citation: ${typeof d.source === 'object' ? d.source.id : d.source} → ${typeof d.target === 'object' ? d.target.id : d.target}`);
+                
+                tooltip.select(".tooltip-content")
+                    .html(`<strong>Type:</strong> ${d.type.charAt(0).toUpperCase() + d.type.slice(1)} Citation<br>
+                           <strong>Count:</strong> ${d.citation_count} citations<br>
+                           <strong>Attention Weight:</strong> ${d.weight.toFixed(2)}`);
+            })
+            .on("mouseout", function() {
+                // Reset link appearance
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr("stroke-opacity", 0.7)
+                    .attr("stroke-width", d => Math.max(1, d.weight * 6))
+                    .style("filter", "none");
+                
+                // Hide tooltip
+                d3.select("#tooltip")
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 0)
+                    .on("end", function() {
+                        d3.select(this).style("display", "none");
+                    });
+            });
+
+            // Implement Reset View button
+            document.getElementById("resetZoomBtn").addEventListener("click", () => {
+                svg.transition()
+                    .duration(750)
+                    .call(zoom.transform, d3.zoomIdentity);
+            });
+
+            // Implement Focus on Top Journals button
+            document.getElementById("focusTopBtn").addEventListener("click", () => {
+                // Get top 10 journals
+                const topJournals = journals.filter(j => j.rank <= 10);
+                
+                // Calculate the bounding box
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                
+                topJournals.forEach(j => {
+                    minX = Math.min(minX, j.x);
+                    minY = Math.min(minY, j.y);
+                    maxX = Math.max(maxX, j.x);
+                    maxY = Math.max(maxY, j.y);
+                });
+                
+                // Add padding
+                const padding = 80;
+                minX -= padding;
+                minY -= padding;
+                maxX += padding;
+                maxY += padding;
+                
+                // Calculate required zoom scale
+                const scale = Math.min(
+                    width / (maxX - minX),
+                    height / (maxY - minY)
+                ) * 0.9;
+                
+                // Calculate center point
+                const centerX = (minX + maxX) / 2;
+                const centerY = (minY + maxY) / 2;
+                
+                // Translate to the center and apply zoom
+                svg.transition()
+                    .duration(750)
+                    .call(
+                        zoom.transform,
+                        d3.zoomIdentity
+                            .translate(width / 2, height / 2)
+                            .scale(scale)
+                            .translate(-centerX, -centerY)
+                    );
+            });
+            
+            // Implement Spread Nodes button - increases spacing between nodes
+            document.getElementById("spreadOutBtn").addEventListener("click", () => {
+                // Increase link distance and restart simulation
+                linkDistance = 250;
+                
+                document.getElementById("spacingSlider").value = linkDistance;
+                document.getElementById("spacingValue").textContent = linkDistance;
+                
+                simulation.stop();
+                simulation = createSimulation();
+                simulation.alpha(1).restart();
+            });
+            
+            // Implement Cluster button - group by field
+            document.getElementById("clusterBtn").addEventListener("click", () => {
+                // Set a moderate link distance
+                linkDistance = 150;
+                document.getElementById("spacingSlider").value = linkDistance;
+                document.getElementById("spacingValue").textContent = linkDistance;
+                
+                // Adjust force simulation to cluster by field
+                simulation.stop();
+                
+                // Create field centers
+                const fieldCenters = {};
+                const fieldCounts = {};
+                
+                uniqueFields.forEach((field, i) => {
+                    const angle = (i / uniqueFields.length) * 2 * Math.PI;
+                    const radius = Math.min(width, height) * 0.35;
+                    
+                    fieldCenters[field] = {
+                        x: width/2 + radius * Math.cos(angle),
+                        y: height/2 + radius * Math.sin(angle)
+                    };
+                    
+                    fieldCounts[field] = journals.filter(j => j.field === field).length;
+                });
+                
+                // Add field-based forces
+                simulation = d3.forceSimulation(journals)
+                    .force("link", d3.forceLink(links)
+                        .id(d => d.id)
+                        .distance(d => {
+                            // Shorter distances for same field
+                            if (d.source.field === d.target.field) {
+                                return linkDistance * 0.7;
+                            }
+                            return linkDistance;
+                        })
+                        .strength(d => {
+                            // Stronger links within same field
+                            if (d.source.field === d.target.field) {
+                                return d.weight * 0.8;
+                            }
+                            return d.weight * 0.4;
+                        }))
+                    .force("charge", d3.forceManyBody()
+                        .strength(d => -150 - (d.impact * 2)))
+                    .force("x", d3.forceX().strength(0.15).x(d => fieldCenters[d.field].x))
+                    .force("y", d3.forceY().strength(0.15).y(d => fieldCenters[d.field].y))
+                    .force("collision", d3.forceCollide()
+                        .radius(d => Math.min(60, 15 + (50 - d.rank) * 0.8)))
+                    .force("center", d3.forceCenter(width / 2, height / 2).strength(0.05))
+                    .on("tick", () => {
+                        // Update links with proper curved paths
+                        link.attr("d", d => {
+                            if (d.source.id === d.target.id) {
+                                // Self-link creates a loop
+                                const x = d.source.x;
+                                const y = d.source.y;
+                                const radius = 25; 
+                                return `M${x},${y - radius} A${radius},${radius} 0 1,1 ${x + 0.1},${y - radius}`;
+                            } else {
+                                // Regular curved links
+                                const dx = d.target.x - d.source.x;
+                                const dy = d.target.y - d.source.y;
+                                const dr = Math.sqrt(dx * dx + dy * dy) * 2;
+                                
+                                return `M${d.source.x},${d.source.y} A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+                            }
+                        });
+
+                        // Update node positions with boundary constraints
+                        node.attr("transform", d => {
+                            // Keep nodes within boundaries
+                            d.x = Math.max(20, Math.min(width - 20, d.x));
+                            d.y = Math.max(20, Math.min(height - 20, d.y));
+                            return `translate(${d.x},${d.y})`;
+                        });
+                    });
+                
+                simulation.alpha(1).restart();
+            });
+            
+            // Node spacing slider
+            document.getElementById("spacingSlider").addEventListener("input", function() {
+                linkDistance = parseInt(this.value);
+                document.getElementById("spacingValue").textContent = linkDistance;
+                
+                // Update simulation with new link distance
+                simulation.stop();
+                simulation = createSimulation();
+                simulation.alpha(0.5).restart(); // Lower alpha for smoother transition
+            });
+            
+            // Color picker event listeners
+            document.getElementById("selfColorStart").addEventListener("input", function() {
+                colorSettings.self.start = this.value;
+                updateGradients();
+            });
+            
+            document.getElementById("selfColorEnd").addEventListener("input", function() {
+                colorSettings.self.end = this.value;
+                updateGradients();
+            });
+            
+            document.getElementById("internalColorStart").addEventListener("input", function() {
+                colorSettings.internal.start = this.value;
+                updateGradients();
+            });
+            
+            document.getElementById("internalColorEnd").addEventListener("input", function() {
+                colorSettings.internal.end = this.value;
+                updateGradients();
+            });
+            
+            document.getElementById("externalColorStart").addEventListener("input", function() {
+                colorSettings.external.start = this.value;
+                updateGradients();
+            });
+            
+            document.getElementById("externalColorEnd").addEventListener("input", function() {
+                colorSettings.external.end = this.value;
+                updateGradients();
+            });
+            
+            // Search functionality
+            document.getElementById("searchBtn").addEventListener("click", function() {
+                const searchTerm = document.getElementById("journalSearch").value.trim().toLowerCase();
+                
+                if (searchTerm.length < 2) {
+                    // Show message for too short search terms
+                    const searchResult = d3.select("#search-result");
+                    searchResult.style("display", "block")
+                        .style("left", "50%")
+                        .style("top", "50%")
+                        .style("transform", "translate(-50%, -50%)")
+                        .html("Please enter at least 2 characters to search.");
+                    
+                    setTimeout(() => {
+                        searchResult.style("display", "none");
+                    }, 2000);
+                    
+                    return;
+                }
+                
+                // Find matching journals
+                const matches = journals.filter(j => j.id.toLowerCase().includes(searchTerm));
+                
+                if (matches.length === 0) {
+                    // No matches found
+                    const searchResult = d3.select("#search-result");
+                    searchResult.style("display", "block")
+                        .style("left", "50%")
+                        .style("top", "50%")
+                        .style("transform", "translate(-50%, -50%)")
+                        .html(`No journals found matching "${searchTerm}"`);
+                    
+                    setTimeout(() => {
+                        searchResult.style("display", "none");
+                    }, 2000);
+                } else if (matches.length === 1) {
+                    // Single match - zoom to it
+                    const match = matches[0];
+                    
+                    // Highlight the node
+                    container.selectAll(".journal-node").style("opacity", 0.3);
+                    container.select(`.journal-node.rank-${match.rank}`).style("opacity", 1);
+                    
+                    // Zoom to the node
+                    svg.transition()
+                        .duration(750)
+                        .call(
+                            zoom.transform,
+                            d3.zoomIdentity
+                                .translate(width / 2, height / 2)
+                                .scale(2)
+                                .translate(-match.x, -match.y)
+                        );
+                    
+                    // Show info popup
+                    const searchResult = d3.select("#search-result");
+                    searchResult.style("display", "block")
+                        .style("left", (match.x + 30) + "px")
+                        .style("top", (match.y - 30) + "px")
+                        .html(`<strong>${match.id}</strong><br>
+                              Field: ${match.field}<br>
+                              Rank: #${match.rank}<br>
+                              Impact: ${match.impact.toFixed(2)}`);
+                    
+                    // Clear highlight after a delay
+                    setTimeout(() => {
+                        container.selectAll(".journal-node").style("opacity", 1);
+                        searchResult.style("display", "none");
+                    }, 4000);
+                    
+                } else {
+                    // Multiple matches - list them and let user choose
+                    const searchResult = d3.select("#search-result");
+                    
+                    let content = `<strong>Found ${matches.length} matches:</strong><br><ul style="padding-left: 20px; margin: 5px 0;">`;
+                    
+                    matches.forEach(match => {
+                        content += `<li style="margin-bottom: 5px; cursor: pointer; color: #FBBF24;" 
+                                      onclick="focusOnJournal('${match.id}')">${match.id} (#${match.rank})</li>`;
+                    });
+                    
+                    content += `</ul><div style="text-align: right; margin-top: 5px;"><button id="closeSearchResults" 
+                              style="background: rgba(251, 191, 36, 0.3); border: none; color: #F8FAFC; padding: 3px 8px; border-radius: 4px; cursor: pointer;">
+                              Close</button></div>`;
+                    
+                    searchResult.style("display", "block")
+                        .style("left", "50%")
+                        .style("top", "50%")
+                        .style("transform", "translate(-50%, -50%)")
+                        .html(content);
+                    
+                    // Add function to focus on selected journal
+                    window.focusOnJournal = function(journalId) {
+                        const journal = journals.find(j => j.id === journalId);
+                        
+                        if (!journal) return;
+                        
+                        // Highlight the node
+                        container.selectAll(".journal-node").style("opacity", 0.3);
+                        container.select(`.journal-node.rank-${journal.rank}`).style("opacity", 1);
+                        
+                        // Zoom to the node
+                        svg.transition()
+                            .duration(750)
+                            .call(
+                                zoom.transform,
+                                d3.zoomIdentity
+                                    .translate(width / 2, height / 2)
+                                    .scale(2)
+                                    .translate(-journal.x, -journal.y)
+                            );
+                        
+                        // Hide search results
+                        searchResult.style("display", "none");
+                        
+                        // Clear highlight after a delay
+                        setTimeout(() => {
+                            container.selectAll(".journal-node").style("opacity", 1);
+                        }, 3000);
+                    };
+                    
+                    // Add close button functionality
+                    document.getElementById("closeSearchResults").addEventListener("click", function() {
+                        searchResult.style("display", "none");
+                    });
+                }
+            });
+            // Field filter functionality
+            document.addEventListener('DOMContentLoaded', function() {
+            // Make sure this runs after the checkboxes are created
+            setTimeout(() => {
+                document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                    // Get all selected fields
+                        const selectedFields = Array.from(document.querySelectorAll('.filter-checkbox:checked'))
+                            .map(cb => cb.value);
+                
+                // Filter nodes
+                        container.selectAll(".journal-node")
+                            .style("display", d => selectedFields.includes(d.field) ? "block" : "none");
+                
+                // Filter links
+                        container.selectAll(".citation-edge")
+                            .style("display", d => {
+                                const sourceField = typeof d.source === 'object' ? 
+                                    d.source.field : journals.find(j => j.id === d.source).field;
+                        
+                                const targetField = typeof d.target === 'object' ? 
+                                    d.target.field : journals.find(j => j.id === d.target).field;
+                        
+                                return selectedFields.includes(sourceField) && selectedFields.includes(targetField) ? 
+                                "block" : "none";
+                            });
+                    });
+            });
+        }, 1000); // Add delay to ensure elements are loaded
+    });
+
+            // Drag behavior functions
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        });
+
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Attention Weights Radar Chart
+                const attentionChart = new Chart(document.getElementById('attentionChart'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Self-Citations (α)', 'Internal Citations (β)', 'External Citations (γ)'],
+                        datasets: [
+                            {
+                                label: 'Nature (Attention Scores)',
+                                data: [0.2, 0.3, 0.5], // Hypothetical attention scores under Tuned Weights
+                                backgroundColor: 'rgba(251, 191, 36, 0.2)', // #FBBF24 with opacity
+                                borderColor: '#FBBF24',
+                                borderWidth: 2,
+                                pointBackgroundColor: '#FBBF24',
+                                pointBorderColor: '#F8FAFC'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 1,
+                                ticks: { color: '#CBD5E1', stepSize: 0.2, display: true },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                                pointLabels: { color: '#CBD5E1', font: { size: 12 } }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top', labels: { color: '#CBD5E1', font: { size: 12 } } },
+                            title: { display: true, text: 'Attention Weights for Nature', color: '#FBBF24', font: { size: 16 } },
+                            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#FBBF24', bodyColor: '#F8FAFC' }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error rendering attention chart:', error);
+                document.getElementById('attentionChartFallback').style.display = 'block';
+            }
+
+            try {
+                // Ranking Impact Bar Chart
+                const rankingChart = new Chart(document.getElementById('rankingChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Nature', 'Science', 'Nature Energy', 'Cell', 'PNAS'],
+                        datasets: [
+                            {
+                                label: 'Equal Weights',
+                                data: [1, 3, 5, 2, 4],
+                                backgroundColor: 'rgba(251, 191, 36, 0.6)', // #FBBF24 with opacity
+                                borderColor: '#FBBF24',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Balanced Weights',
+                                data: [1, 2, 3, 4, 5],
+                                backgroundColor: 'rgba(16, 185, 129, 0.6)', // #10B981 with opacity
+                                borderColor: '#10B981',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Tuned Weights',
+                                data: [2, 3, 1, 4, 5],
+                                backgroundColor: 'rgba(249, 115, 22, 0.6)', // #F97316 with opacity
+                                borderColor: '#F97316',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                max: 5, 
+                                title: { display: true, text: 'Rank', color: '#CBD5E1', font: { size: 14 } },
+                                ticks: { color: '#CBD5E1', stepSize: 1, reverse: true },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: { 
+                                title: { display: true, text: 'Journal', color: '#CBD5E1', font: { size: 14 } },
+                                ticks: { color: '#CBD5E1' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top', labels: { color: '#CBD5E1', font: { size: 12 } } },
+                            title: { display: true, text: 'Top Journals Across Methodologies', color: '#FBBF24', font: { size: 16 } },
+                            tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#FBBF24', bodyColor: '#F8FAFC' }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error rendering ranking chart:', error);
+                document.getElementById('rankingChartFallback').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

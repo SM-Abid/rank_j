@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #F8FAFC;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #FBBF24;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #F8FAFC;
+            font-size: 1.1em;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a:focus {
+            color: #FBBF24;
+            outline: none;
+        }
+
+        .correlation-section {
+            padding: 60px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 40px;
+            min-height: calc(100vh - 120px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+        }
+
+        .content-left {
+            flex: 1;
+            max-width: 50%;
+            padding: 20px;
+        }
+
+        .correlation-section h2 {
+            font-size: 3em;
+            font-weight: 700;
+            color: #FBBF24;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .correlation-section p {
+            font-size: 1.3em;
+            color: #CBD5E1;
+            margin-bottom: 40px;
+            max-width: 100%;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .toggle-button {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            color: #F8FAFC;
+        }
+
+        .toggle-button.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-button.equal {
+            background: #FBBF24;
+            color: #0F172A;
+        }
+
+        .toggle-button.equal:hover, .toggle-button.equal.active {
+            background: #F59E0B;
+        }
+
+        .toggle-button.tuned {
+            background: #10B981;
+        }
+
+        .toggle-button.tuned:hover, .toggle-button.tuned.active {
+            background: #059669;
+        }
+
+        .toggle-button.ascending {
+            background: #EF4444;
+        }
+
+        .toggle-button.ascending:hover, .toggle-button.ascending.active {
+            background: #DC2626;
+        }
+
+        .trust-note {
+            font-size: 1.2em;
+            color: #F8FAFC;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #FBBF24;
+            max-width: 100%;
+            margin-top: 40px;
+            line-height: 1.8;
+        }
+
+        .info-box {
+            font-size: 1.1em;
+            color: #CBD5E1;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 5px solid #10B981;
+            max-width: 100%;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            color: #FBBF24;
+            font-weight: 600;
+        }
+
+        .counter {
+            display: inline-block;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #FBBF24;
+        }
+
+        .chart-container {
+            flex: 1;
+            max-width: 50%;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 600px !important;
+            max-height: 80vh;
+        }
+
+        /* Enhanced Particles for Full Page */
+        #particles-js .particle {
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Footer Styles */
+        footer {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        footer a {
+            text-decoration: none;
+            color: #CBD5E1;
+            font-size: 1em;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover, footer a:focus {
+            color: #FBBF24;
+            outline: none;
+        }
+
+        footer p {
+            font-size: 1.2em;
+            color: #CBD5E1;
+        }
+
+        @media (max-width: 1024px) {
+            .correlation-section {
+                flex-direction: column;
+                padding: 40px 15px;
+            }
+
+            .container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .content-left, .chart-container {
+                max-width: 100%;
+            }
+
+            .chart-container {
+                padding: 20px;
+            }
+
+            canvas {
+                height: 400px !important;
+            }
+
+            .correlation-section h2 {
+                font-size: 2.2em;
+            }
+
+            .correlation-section p {
+                font-size: 1.1em;
+            }
+
+            .toggle-buttons {
+                gap: 10px;
+            }
+
+            .toggle-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .trust-note {
+                font-size: 1em;
+                padding: 15px;
+            }
+
+            .info-box {
+                font-size: 1em;
+                padding: 12px;
+            }
+
+            footer ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            canvas {
+                height: 350px !important;
+            }
+
+            .toggle-button {
+                padding: 8px 16px;
+                font-size: 0.85em;
+            }
+
+            footer {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <header>
+        <div class="logo">RANKJOURNAL</div>
+        <nav>
+            <ul>
+                <li><a href="journal_ranking.html" aria-label="Back to Home">Home</a></li>
+                <li><a href="./insights.html" aria-label="Insights">Insights</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="./get_in_touch.html" class="get-in-touch" aria-label="Get In Touch">Get In Touch</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="correlation-section">
+        <div class="container">
+            <div class="content-left">
+                <h2 class="animate-title">Correlation Analysis</h2>
+                <p class="animate-text">Visualize the strong alignment between our model rankings and established metrics across different weighting schemes, enhanced with dynamic insights.</p>
+                <div class="toggle-buttons">
+                    <button class="toggle-button equal active" data-scheme="equal">Equal Weights</button>
+                    <button class="toggle-button tuned" data-scheme="tuned">Tuned Weights</button>
+                    <button class="toggle-button ascending" data-scheme="ascending">Ascending Weights</button>
+                </div>
+                <div class="trust-note animate-text">
+                    Our model delivers exceptional reliability, with Spearman correlations up to <span class="highlight counter" data-target="0.979">0</span> and Kendall's Tau values reaching <span class="highlight counter" data-target="0.884">0</span> in the Ascending Weights scheme. This consistency across metrics ensures you can trust our rankings for informed decision-making, backed by real-time data analysis.
+                </div>
+                <div class="info-box animate-text">
+                    <strong>Understanding the Chart:</strong> The radar chart shows how well our model aligns with established metrics (Impact Factor, SJR, Article Influence) using Spearman (ρ) and Kendall's Tau (τ) correlations. Spearman ρ measures the strength of a monotonic relationship (0 to 1, where 1 is perfect alignment), while Kendall's Tau τ assesses ordinal association (also 0 to 1). Each axis represents a comparison (e.g., "Model vs IF (ρ)") with values indicating correlation strength.
+                </div>
+            </div>
+            <div class="chart-container animate-chart">
+                <canvas id="correlationChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 RANKJOURNAL. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Enhanced Particles.js Background
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 120, density: { enable: true, value_area: 800 } },
+                color: { value: '#FBBF24' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.6, random: true },
+                size: { value: 4, random: true },
+                line_linked: { enable: false },
+                move: { enable: true, speed: 2.5, direction: 'none', random: true }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' } },
+                modes: { repulse: { distance: 150, duration: 0.5 }, push: { particles_nb: 6 } }
+            },
+            retina_detect: true
+        });
+
+        // Chart Data
+        const correlationData = {
+            equal: {
+                labels: ['Model vs IF (ρ)', 'Model vs IF (τ)', 'Model vs SJR (ρ)', 'Model vs SJR (τ)', 'Model vs AI (ρ)', 'Model vs AI (τ)'],
+                datasets: [{
+                    label: 'Equal Weights (α=1, β=1, γ=1)',
+                    data: [0.971, 0.866, 0.826, 0.651, 0.831, 0.660],
+                    backgroundColor: 'rgba(251, 191, 36, 0.3)',
+                    borderColor: 'rgba(251, 191, 36, 1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgba(251, 191, 36, 1)',
+                    pointBorderColor: '#F8FAFC',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            tuned: {
+                labels: ['Model vs IF (ρ)', 'Model vs IF (τ)', 'Model vs SJR (ρ)', 'Model vs SJR (τ)', 'Model vs AI (ρ)', 'Model vs AI (τ)'],
+                datasets: [{
+                    label: 'Tuned Weights (α=0.5, β=1.5, γ=2)',
+                    data: [0.974, 0.871, 0.882, 0.723, 0.831, 0.660],
+                    backgroundColor: 'rgba(34, 197, 94, 0.3)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgba(34, 197, 94, 1)',
+                    pointBorderColor: '#F8FAFC',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            ascending: {
+                labels: ['Model vs IF (ρ)', 'Model vs IF (τ)', 'Model vs SJR (ρ)', 'Model vs SJR (τ)', 'Model vs AI (ρ)', 'Model vs AI (τ)'],
+                datasets: [{
+                    label: 'Ascending Weights (α=1, β=2, γ=3)',
+                    data: [0.979, 0.884, 0.835, 0.659, 0.849, 0.677],
+                    backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                    pointBorderColor: '#F8FAFC',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            }
+        };
+
+        // Chart Configuration
+        const ctx = document.getElementById('correlationChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'radar',
+            data: correlationData.equal,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#F8FAFC',
+                            font: { size: 16 }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Enhanced Rank Correlation Analysis',
+                        color: '#FBBF24',
+                        font: { size: 20, weight: 'bold' }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#FBBF24',
+                        bodyColor: '#F8FAFC',
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: ${context.raw.toFixed(3)}`
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.3)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.3)' },
+                        pointLabels: { color: '#CBD5E1', font: { size: 14 } },
+                        ticks: {
+                            display: false,
+                            beginAtZero: true,
+                            max: 1.0,
+                            stepSize: 0.2
+                        },
+                        min: 0,
+                        max: 1
+                    }
+                },
+                animation: {
+                    onComplete: () => {
+                        gsap.from(chart.data.datasets[0].data, {
+                            duration: 2.5,
+                            value: 0,
+                            ease: 'elastic.out(1, 0.5)',
+                            onUpdate: function() {
+                                chart.update();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        // Toggle Buttons Functionality
+        const buttons = document.querySelectorAll('.toggle-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const scheme = button.getAttribute('data-scheme');
+                chart.data = correlationData[scheme];
+                gsap.from(chart.data.datasets[0].data, {
+                    duration: 2,
+                    value: 0,
+                    ease: 'elastic.out(1, 0.5)',
+                    onUpdate: () => chart.update()
+                });
+
+                // Update counter values based on selected scheme
+                const counters = document.querySelectorAll('.counter');
+                const correlationValues = {
+                    equal: { spearman: 0.971, kendall: 0.866 },
+                    tuned: { spearman: 0.974, kendall: 0.871 },
+                    ascending: { spearman: 0.979, kendall: 0.884 }
+                };
+                counters[0].setAttribute('data-target', correlationValues[scheme].spearman);
+                counters[1].setAttribute('data-target', correlationValues[scheme].kendall);
+                counters.forEach(counter => {
+                    const target = parseFloat(counter.getAttribute('data-target'));
+                    gsap.to(counter, {
+                        duration: 2.5,
+                        innerHTML: target,
+                        ease: 'power2.out',
+                        snap: { innerHTML: 0.001 },
+                        onUpdate: function() {
+                            counter.innerHTML = parseFloat(counter.innerHTML).toFixed(3);
+                        }
+                    });
+                });
+            });
+        });
+
+        // GSAP Animations
+        gsap.from('.animate-title', {
+            opacity: 0,
+            y: 50,
+            duration: 1.5,
+            ease: 'power3.out'
+        });
+
+        gsap.from('.animate-text', {
+            opacity: 0,
+            y: 30,
+            duration: 1.5,
+            stagger: 0.3,
+            ease: 'power3.out',
+            delay: 0.5
+        });
+
+        gsap.from('.animate-chart', {
+            opacity: 0,
+            scale: 0.9,
+            duration: 2,
+            ease: 'elastic.out(1, 0.5)',
+            delay: 1
+        });
+
+        gsap.from('.toggle-button', {
+            opacity: 0,
+            y: 20,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'power3.out',
+            delay: 0.8
+        });
+
+        // Counter Animation for Highlight Values
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const target = parseFloat(counter.getAttribute('data-target'));
+            gsap.to(counter, {
+                duration: 2.5,
+                innerHTML: target,
+                ease: 'power2.out',
+                delay: 1.5,
+                snap: { innerHTML: 0.001 },
+                onUpdate: function() {
+                    counter.innerHTML = parseFloat(counter.innerHTML).toFixed(3);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

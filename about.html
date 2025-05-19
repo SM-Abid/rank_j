@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RankJournal - About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0F172A;
+            color: #F8FAFC;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #FBBF24;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '';
+            width: 30px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>');
+            background-size: contain;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #F8FAFC;
+            font-size: 1.1em;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover, nav a:focus {
+            color: #FBBF24;
+            outline: none;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #FBBF24;
+            bottom: -4px;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .get-in-touch {
+            background: #F97316;
+            color: #F8FAFC;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .get-in-touch:hover, .get-in-touch:focus {
+            background: #EA580C;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero {
+            position: relative;
+            padding: 80px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .hero-content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            font-weight: 700;
+            color: #F8FAFC;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            color: #FBBF24;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            color: #CBD5E1;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .content-section {
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .content-section h2 {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #FBBF24;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .content-section h2::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background: #FBBF24;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .content-section p {
+            font-size: 1.2em;
+            color: #CBD5E1;
+            margin-bottom: 40px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-container h3 {
+            font-size: 1.5em;
+            color: #F8FAFC;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Citation Types - 3D Stacked Donut Chart Styling */
+        #citationTypesChart {
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5));
+        }
+
+        .citation-labels {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .citation-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #CBD5E1;
+        }
+
+        .citation-label span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Subject Categories - Force Network Visualization */
+        #categoryVisualization {
+            width: 100%;
+            height: 450px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .category-controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .category-button {
+            background: rgba(30, 41, 59, 0.9);
+            color: #F8FAFC;
+            border: 1px solid #FBBF24;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-button:hover, .category-button.active {
+            background: #FBBF24;
+            color: #0F172A;
+        }
+
+        .category-info {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85em;
+            color: #CBD5E1;
+            max-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .category-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85em;
+            color: #CBD5E1;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            filter: brightness(1.3);
+        }
+
+        .node-label {
+            font-size: 10px;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            user-select: none;
+        }
+
+        .link {
+            stroke-opacity: 0.4;
+            transition: stroke-opacity 0.3s ease;
+        }
+
+        .link:hover {
+            stroke-opacity: 0.8;
+        }
+
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.95);
+            color: #F8FAFC;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 0.9em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            max-width: 200px;
+        }
+
+        /* Search and filter component */
+        .search-filter {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #F8FAFC;
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: 200px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #FBBF24;
+            box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+        }
+
+        footer {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+        }
+
+        footer p {
+            font-size: 1em;
+            color: #CBD5E1;
+            margin-bottom: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: #F8FAFC;
+            font-size: 1.5em;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #FBBF24;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 2.5em;
+            }
+
+            .content-section h2 {
+                font-size: 2em;
+            }
+
+            .chart-container {
+                max-width: 100%;
+            }
+
+            #categoryVisualization {
+                height: 350px;
+            }
+
+            .category-controls {
+                gap: 8px;
+            }
+
+            .category-button {
+                font-size: 0.8em;
+                padding: 5px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <header data-aos="fade-down">
+        <div class="logo">RANKJOURNAL</div>
+        <nav>
+            <ul>
+                <li><a href="journal_ranking.html" aria-label="Back to Home">Home</a></li>
+                <li><a href="./insights.html" aria-label="Insights">Insights</a></li>
+                <li><a href="./about.html" aria-label="About">About</a></li>
+                <li><a href="./get_in_touch.html" class="get-in-touch" aria-label="Get In Touch">Get In Touch</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" data-aos="fade-up">
+        <div class="hero-content-wrapper">
+            <h1>About <span>RankJournal</span></h1>
+            <p>Discover the innovative research and technology driving RankJournal, a platform dedicated to advancing journal evaluation.</p>
+        </div>
+    </section>
+
+    <section class="content-section" data-aos="fade-up">
+        <div class="content-wrapper">
+            <h2>Who We Are</h2>
+            <p>RankJournal is a pioneering platform born from research at Southwest Jiaotong University, focused on redefining how academic journals are evaluated. Our mission is to provide a transparent, nuanced, and adaptable framework for understanding scholarly influence across diverse disciplines. Using an advanced Edge-Conditioned Graph Attention Network (GAT) model, we go beyond traditional metrics by incorporating contextual citation patterns and publication dynamics over time. Our approach distinguishes between self-citations, internal citations, and external citations, allowing for tailored evaluations that reflect the true impact of academic work. With a dataset spanning thousands of journals, we empower researchers, academics, and institutions with reliable insights as of May 14, 2025.</p>
+
+            <h2>Our Dataset: A Global Perspective</h2>
+            <p>We analyzed a comprehensive dataset of 11,054 journals from the 2019 Journal Citation Reports (JCR), indexed in the Science Citation Index Expanded (SCIE) and Social Sciences Citation Index (SSCI). This dataset forms a vast citation network with over 34.5 million directed edges, covering 228 distinct subject categories--from established fields like Medicine and Engineering to emerging areas like Medical Ethics and Biodiversity Conservation. Our journals vary widely in size, ranging from niche publications with fewer than 20 articles annually to large-scale journals exceeding 3,000 articles, ensuring a truly representative sample of global academic output.</p>
+
+            <div class="chart-grid">
+                <div class="chart-container" data-aos="zoom-in">
+                    <h3>Citation Types</h3>
+                    <canvas id="citationTypesChart"></canvas>
+                    <div class="citation-labels">
+                        <div class="citation-label"><span style="background: linear-gradient(135deg, #FBBF24, #F59E0B);"></span> Self Citations (11.2%)</div>
+                        <div class="citation-label"><span style="background: linear-gradient(135deg, #10B981, #059669);"></span> Internal Citations (47.6%)</div>
+                        <div class="citation-label"><span style="background: linear-gradient(135deg, #475569, #2D3748);"></span> External Citations (41.2%)</div>
+                    </div>
+                </div>
+                <div class="chart-container" data-aos="zoom-in" data-aos-delay="200">
+                    <h3>Subject Categories</h3>
+                    <div class="search-filter">
+                        <input type="text" class="search-box" id="categorySearch" placeholder="Search categories...">
+                    </div>
+                    <div id="categoryVisualization"></div>
+                    <div class="category-controls">
+                        <button class="category-button active" data-group="all">All Categories</button>
+                        <button class="category-button" data-group="science">Sciences</button>
+                        <button class="category-button" data-group="medical">Medical</button>
+                        <button class="category-button" data-group="social">Social Sciences</button>
+                        <button class="category-button" data-group="engineering">Engineering</button>
+                        <button class="category-button" data-group="humanities">Humanities</button>
+                    </div>
+                    <div class="category-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #F59E0B;"></div>
+                            <span>Sciences</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #10B981;"></div>
+                            <span>Medical</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3B82F6;"></div>
+                            <span>Social Sciences</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8B5CF6;"></div>
+                            <span>Engineering</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #EC4899;"></div>
+                            <span>Humanities</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 RankJournal. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Particles.js
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 120, density: { enable: true, value_area: 800 } },
+                color: { value: '#FBBF24' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.6, random: true },
+                size: { value: 4, random: true },
+                line_linked: { enable: false },
+                move: { enable: true, speed: 3, direction: 'none', random: true }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' } },
+                modes: { repulse: { distance: 150, duration: 0.5 }, push: { particles_nb: 4 } }
+            },
+            retina_detect: true
+        });
+
+        // AOS
+        AOS.init({ duration: 1000, once: true });
+
+        // GSAP Animations for Text
+        gsap.from('.hero h1', { opacity: 0, y: 50, duration: 1.5, ease: 'power3.out' });
+        gsap.from('.hero p', { opacity: 0, y: 30, duration: 1.5, ease: 'power3.out', delay: 0.5 });
+        gsap.from('.content-section h2', { opacity: 0, y: 30, duration: 1.5, ease: 'power3.out', stagger: 0.3 });
+        gsap.from('.content-section p', { opacity: 0, y: 20, duration: 1.5, ease: 'power3.out', stagger: 0.3, delay: 0.5 });
+
+        // Citation Types - 3D Stacked Donut Chart
+        const citationCtx = document.getElementById('citationTypesChart').getContext('2d');
+        const citationChart = new Chart(citationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Self Citations (11.2%)', 'Internal Citations (47.6%)', 'External Citations (41.2%)'],
+                datasets: [{
+                    data: [11.2, 47.6, 41.2],
+                    backgroundColor: [
+                        'rgba(251, 191, 36, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(71, 85, 105, 0.8)'
+                    ],
+                    borderColor: [
+                        '#FBBF24',
+                        '#10B981',
+                        '#475569'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+
+        // GSAP Animation for Citation Chart
+        gsap.from(citationCtx.canvas, { scale: 0.5, opacity: 0, duration: 1.5, ease: 'elastic.out(1, 0.5)' });
+
+        // Subject Categories - D3 Force Network Visualization
+        // Define the data first
+        const categoryData = [
+            // Sciences Group
+            { id: "Physics", group: "science", value: 30, connections: ["Astronomy", "Materials Science", "Quantum Computing", "Applied Physics"] },
+            { id: "Chemistry", group: "science", value: 45, connections: ["Biochemistry", "Materials Science", "Pharmacology", "Environmental Science"] },
+            { id: "Biology", group: "science", value: 42, connections: ["Ecology", "Genetics", "Neuroscience", "Microbiology"] },
+            { id: "Mathematics", group: "science", value: 35, connections: ["Statistics", "Computer Science", "Quantum Computing", "Economics"] },
+            { id: "Astronomy", group: "science", value: 25, connections: ["Physics", "Astrophysics", "Space Science"] },
+            { id: "Geology", group: "science", value: 22, connections: ["Environmental Science", "Oceanography", "Climate Science"] },
+            { id: "Materials Science", group: "science", value: 28, connections: ["Chemistry", "Physics", "Engineering"] },
+            { id: "Environmental Science", group: "science", value: 30, connections: ["Ecology", "Climate Science", "Oceanography", "Geology"] },
+            { id: "Ecology", group: "science", value: 26, connections: ["Biology", "Environmental Science", "Biodiversity"] },
+            { id: "Genetics", group: "science", value: 32, connections: ["Biology", "Molecular Biology", "Biochemistry"] },
+            { id: "Biochemistry", group: "science", value: 29, connections: ["Chemistry", "Biology", "Molecular Biology", "Pharmacology"] },
+            { id: "Molecular Biology", group: "science", value: 27, connections: ["Biology", "Biochemistry", "Genetics"] },
+            { id: "Quantum Computing", group: "science", value: 20, connections: ["Physics", "Computer Science", "Mathematics"] },
+            { id: "Statistics", group: "science", value: 24, connections: ["Mathematics", "Data Science", "Economics"] },
+            { id: "Climate Science", group: "science", value: 28, connections: ["Environmental Science", "Oceanography", "Geology", "Atmospheric Science"] },
+            { id: "Oceanography", group: "science", value: 22, connections: ["Environmental Science", "Climate Science", "Marine Biology"] },
+            { id: "Astrophysics", group: "science", value: 23, connections: ["Physics", "Astronomy", "Space Science"] },
+            { id: "Space Science", group: "science", value: 20, connections: ["Astronomy", "Astrophysics", "Aerospace Engineering"] },
+            { id: "Applied Physics", group: "science", value: 25, connections: ["Physics", "Engineering", "Materials Science"] },
+            { id: "Marine Biology", group: "science", value: 20, connections: ["Biology", "Oceanography", "Ecology"] },
+            { id: "Atmospheric Science", group: "science", value: 18, connections: ["Climate Science", "Environmental Science", "Meteorology"] },
+            { id: "Microbiology", group: "science", value: 26, connections: ["Biology", "Immunology", "Infectious Diseases"] },
+            { id: "Biodiversity", group: "science", value: 20, connections: ["Ecology", "Environmental Science", "Conservation Biology"] },
+            
+            // Medical Group
+            { id: "Medicine", group: "medical", value: 50, connections: ["Public Health", "Surgery", "Cardiology", "Oncology", "Neurology"] },
+            { id: "Neuroscience", group: "medical", value: 38, connections: ["Neurology", "Biology", "Psychology", "Cognitive Science"] },
+            { id: "Immunology", group: "medical", value: 32, connections: ["Medicine", "Microbiology", "Infectious Diseases"] },
+            { id: "Pharmacology", group: "medical", value: 30, connections: ["Medicine", "Biochemistry", "Drug Discovery", "Toxicology"] },
+            { id: "Public Health", group: "medical", value: 35, connections: ["Medicine", "Epidemiology", "Health Policy", "Global Health"] },
+            { id: "Cardiology", group: "medical", value: 28, connections: ["Medicine", "Surgery", "Vascular Medicine"] },
+            { id: "Oncology", group: "medical", value: 34, connections: ["Medicine", "Genetics", "Immunology", "Radiation Oncology"] },
+            { id: "Surgery", group: "medical", value: 30, connections: ["Medicine", "Cardiology", "Orthopedics", "Plastic Surgery"] },
+            { id: "Neurology", group: "medical", value: 28, connections: ["Medicine", "Neuroscience", "Psychiatry"] },
+            { id: "Psychiatry", group: "medical", value: 27, connections: ["Medicine", "Neurology", "Psychology", "Mental Health"] },
+            { id: "Pediatrics", group: "medical", value: 26, connections: ["Medicine", "Child Development", "Neonatology"] },
+            { id: "Infectious Diseases", group: "medical", value: 28, connections: ["Medicine", "Immunology", "Microbiology", "Epidemiology"] },
+            { id: "Medical Ethics", group: "medical", value: 18, connections: ["Medicine", "Ethics", "Health Policy"] },
+            
+            // Social Sciences Group
+            { id: "Psychology", group: "social", value: 40, connections: ["Cognitive Science", "Psychiatry", "Neuroscience", "Social Psychology"] },
+            { id: "Sociology", group: "social", value: 35, connections: ["Anthropology", "Political Science", "Social Work", "Demographics"] },
+            { id: "Economics", group: "social", value: 38, connections: ["Finance", "Business", "Statistics", "Political Science"] },
+            { id: "Anthropology", group: "social", value: 30, connections: ["Sociology", "Archaeology", "Cultural Studies", "Linguistics"] },
+            { id: "Political Science", group: "social", value: 32, connections: ["International Relations", "Public Policy", "Sociology", "Law"] },
+            { id: "Linguistics", group: "social", value: 28, connections: ["Cognitive Science", "Anthropology", "Computer Science", "Education"] },
+            { id: "Education", group: "social", value: 33, connections: ["Psychology", "Linguistics", "Child Development", "Educational Technology"] },
+            { id: "Cognitive Science", group: "social", value: 30, connections: ["Psychology", "Neuroscience", "Linguistics", "Computer Science"] },
+            { id: "Business", group: "social", value: 35, connections: ["Economics", "Management", "Marketing", "Finance"] },
+            { id: "Law", group: "social", value: 32, connections: ["Political Science", "Ethics", "Criminology", "International Relations"] },
+            { id: "Social Psychology", group: "social", value: 25, connections: ["Psychology", "Sociology", "Communications"] },
+            
+            // Engineering Group
+            { id: "Engineering", group: "engineering", value: 45, connections: ["Mechanical Engineering", "Electrical Engineering", "Civil Engineering", "Materials Science"] },
+            { id: "Computer Science", group: "engineering", value: 42, connections: ["Artificial Intelligence", "Data Science", "Software Engineering", "Information Technology"] },
+            { id: "Mechanical Engineering", group: "engineering", value: 32, connections: ["Engineering", "Thermodynamics", "Robotics", "Manufacturing"] },
+            { id: "Electrical Engineering", group: "engineering", value: 34, connections: ["Engineering", "Electronics", "Computer Engineering", "Telecommunications"] },
+            { id: "Civil Engineering", group: "engineering", value: 30, connections: ["Engineering", "Architecture", "Environmental Engineering", "Structural Engineering"] },
+            { id: "Software Engineering", group: "engineering", value: 30, connections: ["Computer Science", "Information Technology", "Computer Engineering"] },
+            { id: "Data Science", group: "engineering", value: 28, connections: ["Computer Science", "Statistics", "Machine Learning", "Information Science"] },
+            { id: "Artificial Intelligence", group: "engineering", value: 32, connections: ["Computer Science", "Machine Learning", "Robotics", "Cognitive Science"] },
+            
+            // Humanities Group
+            { id: "Philosophy", group: "humanities", value: 30, connections: ["Ethics", "Logic", "Religious Studies", "History of Philosophy"] },
+            { id: "History", group: "humanities", value: 33, connections: ["Art History", "Archaeology", "Military History", "Social History"] },
+            { id: "Literature", group: "humanities", value: 32, connections: ["Comparative Literature", "Literary Criticism", "Creative Writing", "English Literature"] },
+            { id: "Religious Studies", group: "humanities", value: 26, connections: ["Theology", "Philosophy", "History", "Cultural Studies"] },
+            { id: "Arts", group: "humanities", value: 28, connections: ["Visual Arts", "Performing Arts", "Art History", "Music"] },
+            { id: "Ethics", group: "humanities", value: 25, connections: ["Philosophy", "Bioethics", "Medical Ethics", "Professional Ethics"] },
+            { id: "Indigenous Studies", group: "humanities", value: 20, connections: ["Anthropology", "History", "Cultural Studies"] }
+        ];
+
+        // Process the data to ensure all connections are valid
+        // Map to store all valid category IDs
+        const validCategories = new Set(categoryData.map(d => d.id));
+        
+        // Filter connections to include only valid categories
+        categoryData.forEach(category => {
+            category.connections = category.connections.filter(connection => 
+                validCategories.has(connection)
+            );
+        });
+
+        // Create links based on connections
+        const links = [];
+        categoryData.forEach(source => {
+            source.connections.forEach(targetId => {
+                const target = categoryData.find(d => d.id === targetId);
+                if (target) {
+                    links.push({
+                        source: source.id,
+                        target: targetId,
+                        value: 1
+                    });
+                }
+            });
+        });
+
+        // Function to create and update the visualization
+        function createCategoryVisualization() {
+            const container = d3.select("#categoryVisualization");
+            const width = container.node().getBoundingClientRect().width;
+            const height = 450;
+
+            // Clear previous SVG if exists
+            container.select("svg").remove();
+            
+            // Remove any existing tooltips
+            d3.select("body").selectAll(".tooltip").remove();
+
+            // Create SVG
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+                
+            // Create tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            // Helper function to get color by group
+            function getGroupColor(group, opacity = 1) {
+                const colors = {
+                    "science": `rgba(245, 158, 11, ${opacity})`,
+                    "medical": `rgba(16, 185, 129, ${opacity})`,
+                    "social": `rgba(59, 130, 246, ${opacity})`,
+                    "engineering": `rgba(139, 92, 246, ${opacity})`,
+                    "humanities": `rgba(236, 72, 153, ${opacity})`
+                };
+                return colors[group] || `rgba(156, 163, 175, ${opacity})`;
+            }
+
+            // Create a force simulation
+            const simulation = d3.forceSimulation(categoryData)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(60))
+                .force("charge", d3.forceManyBody().strength(-100))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(d => (d.value * 0.7) + 5));
+
+            // Create links
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("class", "link")
+                .attr("stroke", d => {
+                    const sourceNode = categoryData.find(n => n.id === d.source);
+                    return getGroupColor(sourceNode ? sourceNode.group : "default", 0.3);
+                })
+                .attr("stroke-width", 1);
+
+            // Create node groups
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(categoryData)
+                .enter().append("g")
+                .attr("class", "node-group")
+                .attr("data-group", d => d.group)
+                .attr("data-id", d => d.id)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            // Add circles to nodes
+            node.append("circle")
+                .attr("class", "node")
+                .attr("r", d => d.value * 0.3 + 3)
+                .attr("fill", d => getGroupColor(d.group, 0.8))
+                .attr("stroke", "#0F172A")
+                .attr("stroke-width", 1.5)
+                .on("mouseover", function(event, d) {
+                    // Highlight connected nodes
+                    const connectedNodes = d.connections;
+                    
+                    d3.selectAll(".node-group").style("opacity", 0.3);
+                    d3.select(this.parentNode).style("opacity", 1);
+                    
+                    d3.selectAll(".node-group").filter(node => 
+                        connectedNodes.includes(node.id)
+                    ).style("opacity", 1);
+                    
+                    // Highlight links
+                    d3.selectAll("line").style("opacity", 0.1);
+                    d3.selectAll("line").filter(link => 
+                        link.source.id === d.id || link.target.id === d.id
+                    ).style("opacity", 1)
+                    .attr("stroke-width", 2);
+                    
+                    // Show tooltip
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    
+                    let groupName = "";
+                    switch(d.group) {
+                        case "science": groupName = "Sciences"; break;
+                        case "medical": groupName = "Medical"; break;
+                        case "social": groupName = "Social Sciences"; break;
+                        case "engineering": groupName = "Engineering"; break;
+                        case "humanities": groupName = "Humanities"; break;
+                        default: groupName = "Other";
+                    }
+                    
+                    tooltip.html(`<strong>${d.id}</strong><br>
+                                Group: ${groupName}<br>
+                                Connections: ${d.connections.length}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.selectAll(".node-group").style("opacity", 1);
+                    d3.selectAll("line").style("opacity", 0.4)
+                    .attr("stroke-width", 1);
+                    
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            // Add labels to nodes
+            node.append("text")
+                .attr("class", "node-label")
+                .attr("dy", -10)
+                .attr("text-anchor", "middle")
+                .text(d => d.value > 25 ? d.id : "")
+                .attr("fill", "#F8FAFC");
+
+            // Set up simulation tick function
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag functions
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+
+            // Set up search functionality
+            d3.select("#categorySearch").on("input", function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                if (searchTerm === "") {
+                    d3.selectAll(".node-group").style("opacity", 1);
+                    d3.selectAll("line").style("opacity", 0.4);
+                    return;
+                }
+                
+                const matchingNodes = categoryData.filter(d => 
+                    d.id.toLowerCase().includes(searchTerm)
+                );
+                
+                const matchingIds = matchingNodes.map(d => d.id);
+                
+                d3.selectAll(".node-group").style("opacity", 0.2);
+                d3.selectAll("line").style("opacity", 0.1);
+                
+                matchingNodes.forEach(match => {
+                    d3.selectAll(".node-group").filter(d => d.id === match.id)
+                        .style("opacity", 1);
+                        
+                    // Also show connected nodes with lower opacity
+                    match.connections.forEach(connId => {
+                        d3.selectAll(".node-group").filter(d => d.id === connId)
+                            .style("opacity", 0.7);
+                    });
+                    
+                    // Highlight relevant links
+                    d3.selectAll("line").filter(link => 
+                        (link.source && link.target) && // Make sure source and target exist
+                        ((link.source.id === match.id || link.target.id === match.id) &&
+                        (matchingIds.includes(link.source.id) || matchingIds.includes(link.target.id)))
+                    ).style("opacity", 0.8);
+                });
+            });
+
+            // Set up category filter buttons
+            d3.selectAll(".category-button").on("click", function() {
+                const group = d3.select(this).attr("data-group");
+                
+                // Update active state of buttons
+                d3.selectAll(".category-button").classed("active", false);
+                d3.select(this).classed("active", true);
+                
+                if (group === "all") {
+                    d3.selectAll(".node-group").style("opacity", 1);
+                    d3.selectAll("line").style("opacity", 0.4);
+                    return;
+                }
+                
+                d3.selectAll(".node-group").style("opacity", 0.2);
+                d3.selectAll("line").style("opacity", 0.1);
+                
+                d3.selectAll(".node-group").filter(d => d.group === group)
+                    .style("opacity", 1);
+                
+                // Highlight links between nodes in this group
+                d3.selectAll("line").filter(link => {
+                    if (!link.source || !link.target) return false;
+                    
+                    const sourceNode = categoryData.find(n => n.id === link.source.id);
+                    const targetNode = categoryData.find(n => n.id === link.target.id);
+                    
+                    if (!sourceNode || !targetNode) return false;
+                    
+                    return sourceNode.group === group && targetNode.group === group;
+                }).style("opacity", 0.8);
+            });
+
+            // Initial highlighting of top categories
+            setTimeout(() => {
+                const topCategories = ["Medicine", "Engineering", "Computer Science", "Physics", "Psychology"];
+                
+                d3.selectAll(".node-group").filter(d => topCategories.includes(d.id))
+                    .select("circle")
+                    .attr("stroke", "#FFFFFF")
+                    .attr("stroke-width", 3);
+                
+                // Add pulsing animation to top categories
+                d3.selectAll(".node-group").filter(d => topCategories.includes(d.id))
+                    .select("circle")
+                    .call(pulse);
+                
+                function pulse(selection) {
+                    selection
+                        .transition()
+                        .duration(1000)
+                        .attr("r", d => (d.value * 0.3 + 3) * 1.2)
+                        .transition()
+                        .duration(1000)
+                        .attr("r", d => d.value * 0.3 + 3)
+                        .on("end", () => pulse(selection));
+                }
+            }, 1000);
+        }
+
+        // Create visualization when document is loaded and D3 is ready
+        window.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit to ensure D3 is fully loaded
+            setTimeout(createCategoryVisualization, 500);
+            
+            // Redraw on window resize
+            window.addEventListener("resize", () => {
+                clearTimeout(window.resizeTimer);
+                window.resizeTimer = setTimeout(() => {
+                    createCategoryVisualization();
+                }, 250);
+            });
+        });
+    </script>
+</body>
+</html>
